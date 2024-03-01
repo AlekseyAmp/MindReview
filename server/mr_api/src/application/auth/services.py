@@ -2,10 +2,11 @@ from dataclasses import dataclass
 
 from fastapi import Response
 
-from src.adapters.api.auth import schemas, token
+from src.adapters.api.auth import schemas
 from src.adapters.api.settings import AuthJWT
 from src.application import exceptions
-from src.application.user.interfaces import IUserRepository
+from src.application.auth import interfaces as auth_interfaces
+from src.application.user import interfaces as user_interfaces
 from src.application.utils import (
     hash_password,
     validate_non_empty_fields,
@@ -19,7 +20,8 @@ class AuthService:
     Сервис аутентификации пользователей.
     """
 
-    user_repo: IUserRepository
+    user_repo: user_interfaces.IUserRepository
+    token_manager: auth_interfaces.ITokenManager
 
     async def register_user(
         self,
@@ -55,7 +57,11 @@ class AuthService:
         user_data = await self.user_repo.create_user(user)
 
         if user_data:
-            tokens = token.create_tokens(user_data.id, response, authorize)
+            tokens = self.token_manager.create_tokens(
+                user_data.id,
+                response,
+                authorize
+            )
 
             return schemas.AuthResponse(
                 id=user_data.id,
@@ -102,7 +108,11 @@ class AuthService:
         if not verify_password(user.password, user_data.password):
             raise exceptions.InvalidCredentialsException()
 
-        tokens = token.create_tokens(user_data.id, response, authorize)
+        tokens = self.token_manager.create_tokens(
+            user_data.id,
+            response,
+            authorize
+        )
 
         return schemas.AuthResponse(
             id=user_data.id,
@@ -119,7 +129,7 @@ class AuthService:
     #     authorize: AuthJWT,
     #     user_id: int
     # ) -> dict[str, str]:
-    #     access_token = TokenService().create_access_token(
+    #     access_token = TokenManager().create_access_token(
     #         authorize,
     #         str(user_id)
     #     )
@@ -157,7 +167,7 @@ class AuthService:
         :return: Словарь с ключом "status" и значением "success",
         указывающим на успешное завершение операции.
         """
-        token.delete_tokens(response, authorize)
+        self.token_manager.delete_tokens(response, authorize)
         return {
             "status": "success"
         }

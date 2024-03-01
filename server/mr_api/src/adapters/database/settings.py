@@ -58,17 +58,17 @@ class Settings(BaseModel):
             "": {
                 "level": "INFO",
                 "handlers": ["default"],
-                "propagate": False,
+                "propagate": False
             },
             "uvicorn.error": {
-                "level": "DEBUG",
-                "handlers": ["default"],
+                "level": "INFO",
+                "handlers": ["default"]
             },
             "uvicorn.access": {
-                "level": "DEBUG",
-                "handlers": ["default"],
-            },
-        },
+                "level": "INFO",
+                "handlers": ["default"]
+            }
+        }
     }
 
 

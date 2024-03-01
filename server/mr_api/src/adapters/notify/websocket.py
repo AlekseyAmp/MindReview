@@ -28,9 +28,13 @@ class WebSocketManager(interfaces.IWebSocketManager):
         :param client_id: Идентификатор клиента,
         связанный с WebSocket-соединением.
         :param websocket: WebSocket-соединение для добавления.
+
+        :return: None
         """
         await websocket.accept()
         self.active_websockets[client_id] = websocket
+
+        return None
 
     def remove_websocket(
         self,
@@ -41,8 +45,12 @@ class WebSocketManager(interfaces.IWebSocketManager):
 
         :param client_id: Идентификатор клиента,
         связанный с WebSocket-соединением.
+
+        :return: None
         """
         del self.active_websockets[client_id]
+
+        return None
 
     async def send_message(
         self,
@@ -59,7 +67,11 @@ class WebSocketManager(interfaces.IWebSocketManager):
         :param client_id: Идентификатор клиента,
         связанный с WebSocket-соединением.
         :param message: Сообщение для отправки.
+
+        :return: None
         """
         websocket = self.active_websockets.get(client_id)
         if websocket:
-            await websocket.send_message(message)
+            await websocket.send_text(message)
+
+        return None

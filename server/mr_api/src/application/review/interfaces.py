@@ -13,7 +13,6 @@ class IAnalyzeRepository(ABC):
     @abstractmethod
     async def save_analyze(
         self,
-        user_id: int,
         analyze: entities.AnalyzeInput
     ) -> entities.AnalyzeReturn:
         pass

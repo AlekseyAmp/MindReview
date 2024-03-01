@@ -77,7 +77,7 @@ class AnalyzeService:
                 )
                 entries_analyze.append(entry_analyze)
 
-            # Формирование общих результатов анализа
+            # Формирование результатов анализа
             analyze_results = asdict(
                 entities.AnalyzeResults(
                     entries_analyze=entries_analyze,
@@ -94,6 +94,7 @@ class AnalyzeService:
             )
             logging.info("Результат анализа отправлен в очередь")
 
+            return None
         except Exception as e:
             logging.exception(
                 "Произошла ошибка при анализе отзывов: %s", str(e)
@@ -112,3 +113,5 @@ class AnalyzeService:
             await self.analyze_producer.send_analyze_results(
                 analyze_error, settings.ANALYZE_QUEUE_NAME
             )
+
+            return None

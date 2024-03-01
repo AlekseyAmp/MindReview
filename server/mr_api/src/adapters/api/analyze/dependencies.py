@@ -23,14 +23,14 @@ async def get_io_manager() -> RabbitMQManager:
 
 
 async def get_review_producer(
-    io_manager: RabbitMQManager = Depends(get_io_manager),
+    io_manager: RabbitMQManager = Depends(get_io_manager)
 ) -> Generator:
     async with ReviewProducer(io_manager) as review_producer:
         yield review_producer
 
 
 async def get_analyze_consumer(
-    io_manager: RabbitMQManager = Depends(get_io_manager),
+    io_manager: RabbitMQManager = Depends(get_io_manager)
 ) -> Generator:
     async with AnalyzeConsumer(io_manager) as analyze_consumer:
         yield analyze_consumer

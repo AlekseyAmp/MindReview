@@ -1,5 +1,6 @@
 from fastapi import (
     APIRouter,
+    BackgroundTasks,
     Depends,
     UploadFile,
     WebSocket,
@@ -42,15 +43,23 @@ async def make_test_analyze(
     return await review_processing_service.process_test_reviews(test)
 
 
-@router.post(path="/file", response_model=schemas.AnalyzeResponse)
+@router.post(path="/file", response_model=dict[str, str])
 async def make_analyze_from_file(
     file: UploadFile,
+    background_task: BackgroundTasks,
     review_processing_service: ReviewProcessingService = Depends(
         get_review_processing_service
     ),
     user_id: int = Depends(get_user_id)
-) -> schemas.AnalyzeResponse:
-    return await review_processing_service.process_reviews_from_file(
-        file,
-        user_id
+) -> dict[str, str]:
+
+    await review_processing_service.process_reviews_from_file_middleware(
+        file
     )
+    background_task.add_task(
+        review_processing_service.process_reviews_from_file,
+        file,
+        user_id,
+    )
+
+    return {"message": "Ваши отзывы отправлены на анализ."}

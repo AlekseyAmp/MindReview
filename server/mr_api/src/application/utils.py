@@ -52,7 +52,7 @@ def validate_non_empty_fields(data: dict) -> str | None:
     :return: Имя первого обнаруженного пустого поля или None,
     если все поля заполнены.
     """
-    def check_value(val) -> str:
+    def check_value(val) -> bool:
         if isinstance(val, str) and not val.strip():
             return True
         elif isinstance(val, list):
@@ -114,8 +114,8 @@ def save_file(file: UploadFile, user_id: str) -> str:
     """
     Сохраняет загруженный файл в директории пользователя.
 
-    :param user_id: Идентификатор пользователя.
     :param file: Объект загруженного файла.
+    :param user_id: Идентификатор пользователя.
 
     :return: Путь к сохраненному файлу.
     """

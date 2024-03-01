@@ -114,6 +114,23 @@ class ReviewProcessingService:
             )
             raise exceptions.ReviewsProcessingException
 
+    async def process_reviews_from_file_middleware(
+        self,
+        file: UploadFile
+    ) -> None:
+
+        # Проверка формата загруженного файла
+        if is_not_valid_file_format(file.filename):
+            raise exceptions.InvalidFileFormatException
+
+        ws = self.excel_manager.load_data(file.file)
+
+        # Проверка на пустоту файла
+        if is_file_empty(ws):
+            raise exceptions.FileEmptyException
+
+        return None
+
     async def process_reviews_from_file(
         self,
         file: UploadFile,
@@ -136,16 +153,8 @@ class ReviewProcessingService:
         ошибка.
         """
 
-        # Проверка формата загруженного файла
-        if is_not_valid_file_format(file.filename):
-            raise exceptions.InvalidFileFormatException
-
         # Загрузка и чтение данных из Excel файла
         ws = self.excel_manager.load_data(file.file)
-
-        # Проверка на пустоту файла
-        if is_file_empty(ws):
-            raise exceptions.FileEmptyException
 
         prepared_reviews = []
 
@@ -170,7 +179,7 @@ class ReviewProcessingService:
                 prepared_reviews, io_settings.REVIEW_QUEUE_NAME
             )
             logger.info("Отзывы из файла отправлены в сервис анализа отзывов")
-            
+
             # Ожидание и получение результатов анализа из очереди
             async with self.analyze_consumer as consumer:
                 async for analyze_results in consumer.receive_analyze_results(
@@ -180,7 +189,7 @@ class ReviewProcessingService:
 
                     # Проверка статуса результата анализа
                     if analyze_results["status"] == Status.ERROR.value:
-                        raise exceptions.AnalyzeServiceException
+                        raise Exception
 
                     # Сохранение результатов анализа в базе данных
                     analyze_result = entities.AnalyzeInput(
@@ -193,18 +202,21 @@ class ReviewProcessingService:
                         status=analyze_results["status"]
                     )
 
-                    analyze = await self.analyze_repo.save_analyze(
-                        user_id,
-                        analyze_result
-                    )
+                    await self.analyze_repo.save_analyze(analyze_result)
 
                     logger.info("Результат анализа сохранён в БД")
 
-                    # Конвертация даты анализа в строковый формат
-                    analyze.dt = datetime_to_json(analyze.dt)
-                    return schemas.AnalyzeResponse(
-                        **asdict(analyze)
+                    await self.websocket_manager.send_message(
+                        user_id,
+                        "Анализ отзывов из файла завершён."
                     )
+
+                    return None
+                    # Конвертация даты анализа в строковый формат
+                    # analyze.dt = datetime_to_json(analyze.dt)
+                    # return schemas.AnalyzeResponse(
+                    #     **asdict(analyze)
+                    # )
         except Exception as e:
             logger.exception(
                 "Произошла ошибка при обработке отзывов из файла: %s", str(e)
@@ -221,9 +233,11 @@ class ReviewProcessingService:
                 status=analyze_results["status"]
             )
 
-            analyze = await self.analyze_repo.save_analyze(
+            await self.analyze_repo.save_analyze(analyze_error)
+
+            await self.websocket_manager.send_message(
                 user_id,
-                analyze_error
+                "Произошла ошибка при обработке отзывов из файла."
             )
 
-            raise exceptions.ReviewsProcessingException
+            return None

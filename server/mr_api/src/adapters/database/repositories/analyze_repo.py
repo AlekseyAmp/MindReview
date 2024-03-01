@@ -14,7 +14,6 @@ class AnalyzeRepository(SABaseRepository, interfaces.IAnalyzeRepository):
     """
     async def save_analyze(
         self,
-        user_id: int,
         analyze: entities.AnalyzeInput
     ) -> entities.AnalyzeReturn:
         table: sqla.Table = tables.analyze

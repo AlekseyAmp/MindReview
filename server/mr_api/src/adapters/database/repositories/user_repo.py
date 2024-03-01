@@ -43,7 +43,7 @@ class UserRepository(SABaseRepository, interfaces.IUserRepository):
         self.session.commit()
         return entities.User(**user)
 
-    async def get_user_by_email(self, email: str) -> entities.User:
+    async def get_user_by_email(self, email: str) -> entities.User | None:
         """
         Получает пользователя из базы данных по электронной почте.
 
