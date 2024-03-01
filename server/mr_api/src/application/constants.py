@@ -16,7 +16,7 @@ class FileConstants:
     """
 
     # Путь к директории для загрузки файлов
-    UPLOAD_DIR: str = "../USER_FILES"
+    UPLOAD_DIR: str = "./USER_FILES"
 
     # Разрешенные форматы файл
     ALLOWED_FORMATS: list[str] = ['.xlsx']

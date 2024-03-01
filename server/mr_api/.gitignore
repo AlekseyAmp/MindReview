@@ -24,3 +24,5 @@ archive.zip
 .*.sw?
 # alembic
 alembic.ini
+# files
+USER_FILES
