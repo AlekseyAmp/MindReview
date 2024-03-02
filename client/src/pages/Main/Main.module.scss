@@ -1,0 +1,106 @@
+@import '../../assets/variables.scss';
+
+.main {
+    margin-top: 150px;
+
+    .title {
+        text-align: center;
+    }
+
+    .howWork {
+        margin-top: 150px;
+
+        h2 {
+            text-align: center;
+        }
+
+        .cards {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+
+            .card {
+                p {
+                    text-align: center;
+                }
+
+                img {
+                    margin-top: 20px;
+                    width: 250px;
+                    height: 250px;
+                }
+
+                padding: 25px 40px;
+                border-radius: 10px;
+                background-color: $white;
+                box-shadow: 2px 2px 4px 1px rgba(0, 0, 0, 0.2);
+            }
+        }
+    }
+
+    .features {
+        margin-top: 150px;
+
+        h2 {
+            text-align: center;
+        }
+
+        .banner {
+            display: flex;
+            justify-content: center;
+        }
+    }
+
+    .test {
+        h2 {
+            text-align: center;
+        }
+
+        margin-top: 150px;
+
+        .content {
+            margin-top: 80px;
+            display: flex;
+            gap: 130px;
+
+            .input {
+                .label {
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    gap: 10px;
+
+                    img {
+                        width: 22px;
+                        height: 22px;
+                    }
+                }
+
+                .tooltip {
+                    margin-top: 5px;
+                    position: relative;
+                    cursor: pointer;
+
+                    .tooltipContent {
+                        position: absolute;
+                        top: calc(100% + 10px);
+                        left: 50%;
+                        transform: translateX(-50%);
+                        background-color: $white;
+                        border-radius: 7px;
+                        padding: 10px;
+                        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+                        outline: none;
+                        z-index: 999;
+                        width: 200px;
+                        display: none;
+                    }
+
+                    &:hover .tooltipContent {
+                        display: block;
+                    }
+                }
+            }
+        }
+    }
+}

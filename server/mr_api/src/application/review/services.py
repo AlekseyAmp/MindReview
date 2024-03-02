@@ -77,7 +77,7 @@ class ReviewProcessingService:
                         author="You"
                     )
                 )
-                for index, review in enumerate(test.reviews)
+                for index, review in enumerate(test.reviews, start=1)
             ]
 
             # Отправка тестовых отзывов в очередь для анализа

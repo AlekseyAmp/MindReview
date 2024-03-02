@@ -68,6 +68,7 @@ class AnalyzeService:
                 entry_analyze = asdict(
                     entities.EntryAnalyze(
                         number=review_number,
+                        raiting=review.get("raiting"),
                         message=review.get("message"),
                         sentiment=sentiment,
                         keywords=keywords_list,

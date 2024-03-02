@@ -1,0 +1,84 @@
+$white: #FEFFFF;
+$dark: #221F1F;
+$gray: #9C9EA3;
+$red: #eb0b0b;
+$orange: #E56935;
+$lettuce: #90BE6D;
+$green: #15966E;
+$purple: #635BFF;
+
+.dark-text {
+    text-decoration: none;
+    font-family: 'Mulish';
+    font-size: 16px;
+    font-weight: 500;
+    color: $dark;
+}
+
+.white-text {
+    text-decoration: none;
+    font-family: 'Mulish';
+    font-size: 16px;
+    font-weight: 500;
+    color: $white;
+}
+
+.gray-text {
+    text-decoration: none;
+    font-family: 'Mulish';
+    font-size: 16px;
+    font-weight: 500;
+    color: $gray;
+}
+
+.bold-text {
+    text-decoration: none;
+    font-family: 'Mulish';
+    font-size: 25px;
+    font-weight: bold;
+    color: $dark;
+}
+
+.purple-text {
+    text-decoration: none;
+    font-family: 'Mulish';
+    font-size: 16px;
+    font-weight: 500;
+    color: $purple;
+}
+
+.red-text {
+    text-decoration: none;
+    font-family: 'Mulish';
+    font-size: 12px;
+    font-weight: 500;
+    color: $red;
+}
+
+.link-text {
+    text-decoration: none;
+    font-family: 'Mulish';
+    font-size: 18px;
+    font-weight: 500;
+    color: $gray;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.purple-link-text {
+    text-decoration: none;
+    font-family: 'Mulish';
+    font-size: 18px;
+    font-weight: 500;
+    color: $purple;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.link-text:hover {
+    color: $purple;
+}
+
+.purple-link-text:hover {
+    color: $green;
+}

@@ -1,0 +1,24 @@
+@import '../../../../assets/variables.scss';
+
+.purpleButton {
+    button {
+        text-align: center;
+        cursor: pointer;
+        outline: none;
+        border: none;
+        border-radius: 7px;
+        background: $purple;
+        padding: 10px 20;
+        color: $white;
+        font-family: 'Mulish';
+        font-size: 16px;
+        font-weight: 500;
+        transition: 0.2s;
+    }
+}
+
+.purpleButton button:hover{
+    background: transparent;
+    border: 2px solid $purple;
+    color: $purple;
+}

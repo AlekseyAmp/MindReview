@@ -1,0 +1,118 @@
+@import '../../../../assets/variables.scss';
+
+.card {
+    width: 930px;
+    display: flex;
+    justify-content: space-between;
+    padding: 10px 20px;
+    border-radius: 10px;
+    background-color: $white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    margin-top: 20px;
+
+    @media screen and (max-width: 1000px) {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    h3 {
+        font-size: 13px;
+    }
+    span {
+        font-size: 13px;
+    }
+
+    .left {
+        width: calc(85% - 10px);
+        max-width: 1200px;
+
+        @media screen and (max-width: 1000px) {
+            width: 100%;
+        }
+
+        .header {
+            margin-bottom: 10px;
+            p {
+                font-size: 13px;
+            }
+        }
+
+        .messageBlock {
+            p {
+                font-size: 15px;
+            }
+            width: 100%;
+            word-wrap: break-word;
+        }
+
+        .keywordsBlock {
+            margin-top: 15px;
+            .keywords {
+                margin-top: 5px;
+                display: flex;
+                flex-wrap: wrap;
+    
+                .keyword {
+                    font-size: 13px;
+                    margin-right: 5px;
+                    margin-bottom: 5px;
+                    background-color: $purple;
+                    padding: 2px 5px;
+                    border-radius: 7px;
+    
+                    @media screen and (max-width: 1000px) {
+                        margin-right: 0;
+                    }
+                }
+            }
+        }
+        .authorInfoBlock {
+            margin-top: 15px;
+            .author {
+                margin-top: 5px;
+                p {
+                    font-size: 13px;
+                    font-weight: 500;
+                }
+                span {
+                    font-weight: bold;
+                }
+            }
+        }
+        }
+    }
+
+    .right {
+        display: flex;
+        flex-direction: column;
+    
+        @media screen and (max-width: 1000px) {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 20px;
+        }
+    
+        .sentimentBlock {
+            padding: 5px 10px;
+            border-radius: 7px;
+            font-size: 13px;
+            max-width: 100%;
+        }
+        .raiting {
+            display: flex;
+            justify-content: end;
+            margin-top: 15px;
+            .raitingInfo {
+                display: flex;
+                align-items: center;
+                gap: 3px;
+                img {
+                    width: 17px;
+                    height: 17px;
+                }
+            }
+        }
+    
+    }

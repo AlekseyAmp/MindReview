@@ -8,6 +8,7 @@ app = FastAPI(title="MindReviewAPI", version="0.1")
 
 origins = [
     "http://127.0.0.1:5500",
+    "http://localhost:3000"
 ]
 
 

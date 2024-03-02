@@ -1,0 +1,25 @@
+@import './variables.scss';
+
+
+.body {
+    background-color: $white;
+}
+
+.container {
+    max-width: 1420px;
+    margin: 0 auto;
+}
+
+.center {
+    display: flex;
+    justify-content: center;
+}
+
+
+.mt35px {
+    margin-top: 35px;
+}
+
+.mt50px {
+    margin-top: 50px;
+}

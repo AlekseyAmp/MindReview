@@ -1,0 +1,22 @@
+@import '../../../../assets/variables.scss';
+
+.redButton {
+    button {
+        text-align: center;
+        cursor: pointer;
+        outline: none;
+        border: none;
+        border-radius: 7px;
+        background: $red;
+        padding: 10px 20;
+        color: $white;
+        font-family: 'Mulish';
+        font-size: 16px;
+        font-weight: 500;
+        transition: 0.2s;
+    }
+}
+
+.redButton button:hover{
+    background: $orange;
+}

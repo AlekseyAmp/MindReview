@@ -229,34 +229,29 @@ class NLPService(interfaces.INLPService):
 
         :return: Словарь с индексами отзывов и определением пола авторов.
         """
-
-        genders = {}
+        genders = {"masc": 0, "femn": 0}
 
         for review in reviews:
             # Извлекаем глаголы из текста отзыва
             verbs = self._extract_verbs(review["message"])
 
-            if not verbs:
-                # Если глаголы не найдены,
-                #   присваиваем значение по умолчанию для гендера
-                gender = GENDERS.get(None)
-            else:
+            if verbs:
                 # Определяем пол по глаголам
-                gender = next(
-                    (
-                        GENDERS.get(
-                            self.morph_analyzer.parse(verb)[0].tag.gender
-                        )
-                        for verb in verbs
-                    ),
-                    GENDERS.get(None)
-                )
+                for verb in verbs:
+                    gender = self.morph_analyzer.parse(verb)[0].tag.gender
+                    if gender in GENDERS.keys():
+                        genders[gender] += 1
 
-            # Сохранение гендеров в словаре,
-            #   где ключ - индекс отзыва, значение - пол автора.
-            genders[review["number"]] = gender
+        if genders["masc"] > genders["femn"]:
+            dominant_gender = GENDERS.get("masc")
+        elif genders["femn"] > genders["masc"]:
+            dominant_gender = GENDERS.get("femn")
+        else:
+            dominant_gender = None
 
-        return genders
+        gender_results = {review["number"]: dominant_gender for review in reviews}
+
+        return gender_results
 
     def extract_age_author(self, reviews: list[dict]) -> dict[int, int | None]:
         """

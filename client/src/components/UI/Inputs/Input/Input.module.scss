@@ -1,0 +1,24 @@
+@import '../../../../assets/variables.scss';
+
+.input {
+    input {
+        font-family: 'Mulish';
+        font-weight: 400;
+        font-size: 16px;
+        background: $white;
+        border: 2px solid $gray;
+        outline: none;
+        border-radius: 7px;
+        padding-left: 15px;
+        transition: 0.2s;
+    }
+
+    input:focus {
+        border: 2px solid $purple
+    }
+
+    label {
+        margin-bottom: 10px;
+    }
+
+}

@@ -1,0 +1,22 @@
+// Подключение шрифтов из папки ../public/fonts
+@font-face {
+    font-family: 'Mulish';
+    src: url('../../public/fonts/Mulish-Regular.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+  }
+
+  @font-face {
+    font-family: 'Mulish';
+    src: url('../../public/fonts/Mulish-Medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+  }
+  
+  @font-face {
+    font-family: 'Mulish';
+    src: url('../../public/fonts/Mulish-Bold.ttf') format('truetype');
+    font-weight: bold;
+    font-style: normal;
+  }
+  

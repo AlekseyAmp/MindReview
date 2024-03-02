@@ -1,0 +1,28 @@
+@import '../../../../assets/variables.scss';
+
+
+.textarea {
+    display: flex;
+    flex-direction: column;
+    textarea{
+        font-family: 'Mulish';
+        font-weight: 400;
+        font-size: 16px;
+        background: $white;
+        padding: 15px;
+        font-size: 16px;
+        border: 2px solid $gray;
+        border-radius: 7px;
+        resize: vertical;
+        transition: 0.2s;
+        outline: none;
+    }
+
+    textarea:focus {
+        border: 2px solid $purple
+    }
+
+    label {
+        margin-bottom: 15px;
+    }
+}

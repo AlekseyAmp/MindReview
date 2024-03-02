@@ -6,11 +6,12 @@ from src.application.constants import Status
 @dataclass
 class EntryAnalyze:
     number: int
+    raiting: float | None
     message: str
     sentiment: str
     keywords: list[str | None]
-    author_gender: str
-    author_age: int | None
+    author_gender: str | None
+    author_age: float | None
 
 
 @dataclass

@@ -1,0 +1,30 @@
+@import '../../../assets/variables.scss';
+
+.tooltip {
+    margin-top: 5px;
+    position: relative;
+    cursor: pointer;
+
+    .tooltipContent {
+        position: absolute;
+        top: calc(100% + 10px);
+        left: 50%;
+        transform: translateX(-50%);
+        background-color: $white;
+        border-radius: 7px;
+        padding: 10px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        outline: none;
+        z-index: 999;
+        width: 200px;
+        display: none;
+
+        p:last-child {
+            margin-top: 5px;
+        }
+    }
+
+    &:hover .tooltipContent {
+        display: block;
+    }
+}

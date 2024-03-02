@@ -1,0 +1,22 @@
+@import '../../../../assets/variables.scss';
+
+.outlineButton {
+    button {
+        text-align: center;
+        cursor: pointer;
+        border-radius: 7px;
+        background: transparent;
+        border: 2px solid $purple;
+        padding: 10px 20px;
+        color: $purple;
+        font-family: 'Mulish';
+        font-size: 16px;
+        font-weight: 500;
+        transition: 0.2s;
+    }
+}
+
+.outlineButton button:hover{
+    background: $purple;
+    color: $white;
+}
