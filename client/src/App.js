@@ -6,7 +6,7 @@ import './assets/reset.scss';
 import './assets/global.scss';
 
 import Header from './components/Header/Header';
-import Footer from './components/Footer/Footer';
+// import Footer from './components/Footer/Footer';
 
 import routes from './routes';
 
@@ -23,7 +23,7 @@ function App() {
           />
         ))}
       </Routes>
-      <Footer />
+      {/* <Footer /> */}
     </div>
   );
 }
