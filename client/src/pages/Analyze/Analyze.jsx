@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styles from './Analyze.module.scss';
-import ReviewCard from '../../components/UI/Cards/ReviewCard/ReviewCard';
+import ReviewCard from '../../components/Cards/ReviewCard/ReviewCard';
 
 function Analyze() {
   const [analyzeData, setAnalyzeData] = useState(null);

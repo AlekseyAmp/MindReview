@@ -5,6 +5,10 @@
 
     .title {
         text-align: center;
+
+        .testServiceButton {
+            display: inline-block;
+        }
     }
 
     .howWork {
@@ -62,13 +66,19 @@
             margin-top: 80px;
             display: flex;
             gap: 130px;
-
+            
             .input {
                 .label {
                     display: flex;
                     flex-direction: row;
                     align-items: center;
                     gap: 10px;
+                    
+                    // .testButton {
+                        button {
+                            display: inline-block;
+                        }
+                    // }
 
                     img {
                         width: 22px;

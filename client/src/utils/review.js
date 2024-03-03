@@ -10,13 +10,3 @@ export function getSentimentInfo(sentiment) {
             return null;
     }
 };
-
-export function formatAge(age) {
-    if (age === 1) {
-        return "год";
-    } else if (age >= 2 && age <= 4) {
-        return "года";
-    } else {
-        return "лет";
-    }
-};

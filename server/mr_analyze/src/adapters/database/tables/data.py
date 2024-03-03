@@ -23,10 +23,17 @@ cities = Table(
         comment='Дата добавления города',
     ),
     Column(
-        'name',
+        'raw_name',
         String,
         nullable=False,
-        comment='Название города',
+        unique=True,
+        comment='Сырое имя города',
+    ),
+    Column(
+        'original_name',
+        String,
+        nullable=True,
+        comment='Оригинальное название города',
     ),
     comment='Список городов для распознавания города в отзыве'
 )

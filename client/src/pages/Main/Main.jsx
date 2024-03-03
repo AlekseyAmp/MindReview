@@ -19,9 +19,9 @@ function Main() {
   const [showError, setShowError] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  const scrollToHowWork = () => {
-    const howWorkSection = document.getElementById('testService');
-    howWorkSection.scrollIntoView({ behavior: 'smooth' });
+  const scrollToTest = () => {
+    const TestSection = document.getElementById('testService');
+    TestSection.scrollIntoView({ behavior: 'smooth' });
   };
 
   const handleTestSubmit = (e) => {
@@ -57,10 +57,10 @@ function Main() {
             выявлять тренды <br />
             и оптимизировать стратегии развития бизнеса <br />
           </h3>
-          <div className={`mt35px`}>
+          <div className={`mt35px ${styles.testServiceButton}`}>
             <PurpleButton
               title={"Протестировать сервис"}
-              onClick={scrollToHowWork}
+              onClick={scrollToTest}
               width={300}
               height={37}
             />
@@ -112,10 +112,10 @@ function Main() {
               <div className={styles.label}>
                 <span className={`gray-text`}>Введите один или несколько отзывов для проверки качества сервиса.</span>
                 <Tooltip
-                setShowTooltip={setShowTooltip}
-                showTooltip={showTooltip}
-                title={"Отзывы нужно вводить каждый на новой строке:"}
-                text={<span>Текст1 <br /> Текст2 <br /> Текст3</span>}
+                  setShowTooltip={setShowTooltip}
+                  showTooltip={showTooltip}
+                  title={"Отзывы нужно вводить каждый на новой строке:"}
+                  text={<span>Текст1 <br /> Текст2 <br /> Текст3</span>}
                 />
               </div>
               <Textarea
@@ -124,7 +124,7 @@ function Main() {
                 height={188}
                 onChange={(e) => setReviews(e.target.value)}
               />
-              <div className={`mt35px`}>
+              <div className={`mt35px ${styles.testButton}`}>
                 <PurpleButton
                   title={"Попробовать"}
                   width={422}

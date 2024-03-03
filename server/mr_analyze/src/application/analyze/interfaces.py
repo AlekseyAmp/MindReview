@@ -1,6 +1,8 @@
 from abc import ABC, abstractmethod
 from typing import Generator
 
+from src.application.collection import entities
+
 
 class IAnalyzeRepository(ABC):
     pass
@@ -31,17 +33,39 @@ class IAnalyzeProducer(ABC):
 class INLPService(ABC):
 
     @abstractmethod
-    def analyze_sentiment(self, reviews: list[dict]) -> dict[int, float]:
+    def analyze_sentiment(
+        self,
+        reviews: list[dict]
+    ) -> dict[int, tuple[str, float]]:
         pass
 
     @abstractmethod
-    def extract_keywords(self, reviews: list[dict]) -> dict[int, list[str]]:
+    def extract_keywords(
+        self,
+        reviews: list[dict],
+        keywords_stopwords: set[str]
+    ) -> dict[int, list[str | None]]:
         pass
 
     @abstractmethod
-    def extract_gender_author(self, reviews: list[dict]) -> dict[int, str]:
+    def extract_gender_author(
+        self,
+        reviews: list[dict]
+    ) -> dict[int, str | None]:
         pass
 
     @abstractmethod
-    def extract_age_author(self, reviews: list[dict]) -> dict[int, int]:
+    def extract_years(
+        self,
+        reviews: list[dict]
+    ) -> dict[int, list[int | None]]:
+        pass
+
+    @abstractmethod
+    def extract_cities(
+        self,
+        reviews: list[dict],
+        all_cities: list[entities.City],
+        cities_stopwords: set[str]
+    ) -> dict[int, set[str | None]]:
         pass

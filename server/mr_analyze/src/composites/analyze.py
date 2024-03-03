@@ -19,6 +19,7 @@ class DB:
     session: Session = get_session()
 
     analyze_repo = repositories.AnalyzeRepository(session)
+    data_repo = repositories.DataRepository(session)
 
 
 class RabbitMQManager:
@@ -46,28 +47,28 @@ class NLP:
     morph_analyzer = MorphAnalyzer()
     translator = Translator()
 
-    nltk.download('stopwords')
-    nltk.download('averaged_perceptron_tagger_ru')
-    stop_words = set(stopwords.words('russian'))
-    stop_words.update(['что', 'нея', 'норма', 'йорк', 'деньга', 'часть', 'день', 'это', 'так', 'вот', 'быть', 'как', 'в', 'к', 'на', 'руб', 'мой', 'твой', 'его', 'её', 'наш', 'ваш', 'их', 'свой', 'еще', 'очень', 'поэтому', 'однако', 'конечно'])
-
     nlp_service = NLPService(
         sentiment_analyzer,
         morph_analyzer,
-        translator,
-        stop_words
+        translator
     )
 
 
 if __name__ == '__main__':
+    nltk.download('stopwords')
+    nltk.download('averaged_perceptron_tagger_ru')
+    keywords_stopwords = set(stopwords.words('russian'))
+
     async def main() -> None:
         async for analyze_producer in Producer().get_analyze_producer():
             async for review_consumer in Consumer().get_review_consumer():
                 analyze_service = AnalyzeService(
                     DB.analyze_repo,
+                    DB.data_repo,
                     review_consumer,
                     analyze_producer,
-                    NLP.nlp_service
+                    NLP.nlp_service,
+                    keywords_stopwords
                 )
                 await analyze_service.start_review_processing()
 

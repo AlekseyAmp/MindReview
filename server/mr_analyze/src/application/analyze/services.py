@@ -3,6 +3,7 @@ from dataclasses import asdict, dataclass
 
 from src.adapters.rpc.settings import settings
 from src.application.analyze import entities, interfaces
+from src.application.collection import interfaces as collection_interfaces
 from src.application.constants import Status
 
 
@@ -13,9 +14,11 @@ class AnalyzeService:
     """
 
     analyze_repo: interfaces.IAnalyzeRepository
+    data_repo: collection_interfaces.IDataRepository
     review_consumer: interfaces.IReviewСonsumer
     analyze_producer: interfaces.IAnalyzeProducer
     nlp_service: interfaces.INLPService
+    keywords_stopwords: set[str]
 
     async def start_review_processing(self) -> None:
         """
@@ -46,37 +49,47 @@ class AnalyzeService:
         """
         try:
             logging.info("Начало анализа отзывов")
+            
+            # Получаем список все городов        
+            all_cities = self.data_repo.get_all_cities()
+            self.keywords_stopwords.update(
+                city.raw_name
+                for city in all_cities
+            )
 
-            # Выполнение анализа сентимента,
-            #   ключевых слов,
-            #   пола
-            #   и возраста авторов отзывов
+            # Проводим анализ
             sentiments = self.nlp_service.analyze_sentiment(reviews)
-            keywords = self.nlp_service.extract_keywords(reviews)
-            authors_gender = self.nlp_service.extract_gender_author(reviews)
-            authors_age = self.nlp_service.extract_age_author(reviews)
+            keywords = self.nlp_service.extract_keywords(
+                reviews,
+                self.keywords_stopwords
+            )
 
-            # Подготовка результатов анализа для отправки
-            entries_analyze = []
-            for review in reviews:
-                review_number = review.get("number")
-                sentiment = sentiments.get(review_number)
-                keywords_list = keywords.get(review_number)
-                author_gender = authors_gender.get(review_number)
-                author_age = authors_age.get(review_number)
+            # Составляем стоп-ворды для городов на основе ключевых слов
+            stopwords_cities = set()
+            for city_keywords in keywords.values():
+                stopwords_cities.update(filter(None, city_keywords))
 
-                entry_analyze = asdict(
-                    entities.EntryAnalyze(
-                        number=review_number,
-                        raiting=review.get("raiting"),
-                        message=review.get("message"),
-                        sentiment=sentiment,
-                        keywords=keywords_list,
-                        author_gender=author_gender,
-                        author_age=author_age
-                    )
-                )
-                entries_analyze.append(entry_analyze)
+            cities = self.nlp_service.extract_cities(
+                reviews,
+                all_cities,
+                stopwords_cities
+            )
+            years = self.nlp_service.extract_years(reviews)
+
+            nlp_result = entities.NLPResult(
+                sentiments=sentiments,
+                keywords=keywords,
+                cities=cities,
+                years=years
+            )
+
+            logging.info("Анализ завершён")
+
+            # Подготавливаем результат анализа по каждому отзыву
+            entries_analyze = self._prepare_entries_analyze(
+                reviews,
+                nlp_result
+            )
 
             # Формирование результатов анализа
             analyze_results = asdict(
@@ -86,8 +99,6 @@ class AnalyzeService:
                     status=Status.COMPLETE.value
                 )
             )
-
-            logging.info("Анализ завершён")
 
             # Отправка результатов анализа в очередь
             await self.analyze_producer.send_analyze_results(
@@ -116,3 +127,40 @@ class AnalyzeService:
             )
 
             return None
+
+    def _prepare_entries_analyze(
+        self,
+        reviews: list[dict],
+        nlp_result: entities.NLPResult
+    ) -> list:
+        entries_analyze = []
+        for review in reviews:
+            review_number = review.get("number")
+            sentiment = nlp_result.sentiments.get(review_number)
+            keywords_list = nlp_result.keywords.get(review_number)
+            cities = nlp_result.cities.get(review_number)
+            years = nlp_result.years.get(review_number)
+
+            entries_analyze.append(
+                asdict(
+                    entities.EntryAnalyze(
+                        number=review_number,
+                        raiting=review.get("raiting"),
+                        message=review.get("message"),
+                        sentiment=sentiment,
+                        keywords=keywords_list,
+                        other_info=entities.OtherInfo(
+                            cities,
+                            years
+                        )
+                    )
+                )
+            )
+
+        return entries_analyze
+
+    def _prepare_full_analyze(
+        self,
+        entries_analyze: list[entities.EntryAnalyze],
+    ):
+        pass

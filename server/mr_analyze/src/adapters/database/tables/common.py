@@ -64,9 +64,12 @@ users = Table(
     ),
     Column(
         'role',
-        ENUM(UserRole),
+        ENUM(
+            *[user_role.value for user_role in UserRole],
+            name='user_role_enum',
+        ),
         nullable=False,
-        default=UserRole.USER,
+        default=UserRole.USER.value,
         comment='Роль пользователя',
     ),
     comment='Таблица, содержащая информацию о пользователях',
@@ -102,7 +105,10 @@ analyze = Table(
     ),
     Column(
         'source_type',
-        ENUM(SourceType),
+        ENUM(
+            *[source_type.value for source_type in SourceType],
+            name='source_type_enum',
+        ),
         nullable=False,
         comment='Тип источника (тест, файл или сайт)',
     ),
@@ -123,7 +129,10 @@ analyze = Table(
     ),
     Column(
         'status',
-        ENUM(Status),
+        ENUM(
+            *[status.value for status in Status],
+            name='status_enum',
+        ),
         comment='Статус анализа (выполнен, ошибка)',
     ),
     comment='Таблица, содержащая результаты анализа отзывов',

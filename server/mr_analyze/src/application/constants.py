@@ -60,3 +60,4 @@ class PartOfSpeech(Enum):
     ADJECTIVE: str = "ADJECTIVE"  #: Прилагательное
     ADVERB: str = "ADVERB"        #: Наречие
     OTHER: str = "OTHER"          #: Другие части речи
+    UNKNOWN: str = "UNKN"         #: Неизвестно
