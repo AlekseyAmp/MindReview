@@ -42,22 +42,18 @@ function Header() {
                 </div>
                 <div className={styles.menu}>
                     <ul>
-                        {isAuthorized && (
-                            <>
-                                <li>
-                                    <img src="img/icons/diagram.svg" alt="analyze" />
-                                    <Link to='/analyze' className={`link-text`}>Анализ</Link>
-                                </li>
-                                <li>
-                                    <img src="img/icons/folder.svg" alt="archive" />
-                                    <Link to='/archive' className={`link-text`}>Архив</Link>
-                                </li>
-                                <li>
-                                    <img src="img/icons/issue.svg" alt="feedback" />
-                                    <Link to='/feedback' className={`link-text`}>Обратная связь</Link>
-                                </li>
-                            </>
-                        )}
+                        <li>
+                            <img src="img/icons/diagram.svg" alt="analyze" />
+                            <Link to='/analyze' className={`link-text`}>Анализ</Link>
+                        </li>
+                        <li>
+                            <img src="img/icons/folder.svg" alt="archive" />
+                            <Link to='/archive' className={`link-text`}>Архив</Link>
+                        </li>
+                        <li>
+                            <img src="img/icons/issue.svg" alt="feedback" />
+                            <Link to='/feedback' className={`link-text`}>Обратная связь</Link>
+                        </li>
                     </ul>
 
                 </div>

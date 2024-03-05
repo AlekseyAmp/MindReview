@@ -11,3 +11,9 @@ class User:
     email: str
     password: str
     role: str
+    is_premium: bool
+
+
+@dataclass
+class UserIsPremium:
+    is_premium: bool

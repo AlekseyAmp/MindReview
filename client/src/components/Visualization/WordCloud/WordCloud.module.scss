@@ -1,0 +1,25 @@
+@import '../../../assets/variables.scss';
+
+
+.wordcloud {
+    h3 {
+        margin-bottom: 5px;
+        font-size: 17px;
+    }
+    padding: 20px;
+    background-color: $white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    border-radius: 20px;
+}
+.notData {
+    h3 {
+        margin-bottom: 5px;
+        font-size: 17px;
+    }
+    width: fit-content;
+    height: fit-content;
+    padding: 20px;
+    background-color: $white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    border-radius: 20px;
+}

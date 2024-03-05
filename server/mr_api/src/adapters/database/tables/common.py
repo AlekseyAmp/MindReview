@@ -1,4 +1,5 @@
 from sqlalchemy import (
+    Boolean,
     Column,
     DateTime,
     ForeignKey,
@@ -71,6 +72,12 @@ users = Table(
         nullable=False,
         default=UserRole.USER.value,
         comment='Роль пользователя',
+    ),
+    Column(
+        'is_premium',
+        Boolean,
+        default=False,
+        comment='Есть подписка или нет',
     ),
     comment='Таблица, содержащая информацию о пользователях',
 )

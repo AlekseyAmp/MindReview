@@ -1398,7 +1398,7 @@ zstd = ["zstandard (>=0.18.0)"]
 [[package]]
 name = "vadersentiment"
 version = "3.3.2"
-description = "VADER Sentiment Analysis. VADER (Valence Aware Dictionary and sEntiment Reasoner) is a lexicon and rule-based sentiment analysis tool that is specifically attuned to sentiments expressed in social media, and works well on texts from other domains."
+description = "VADER Sentiment analyze. VADER (Valence Aware Dictionary and sEntiment Reasoner) is a lexicon and rule-based sentiment analyze tool that is specifically attuned to sentiments expressed in social media, and works well on texts from other domains."
 optional = false
 python-versions = "*"
 files = [

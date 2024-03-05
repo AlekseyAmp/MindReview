@@ -1,20 +1,18 @@
 import re
 from dataclasses import dataclass
 
-# from fuzzywuzzy import fuzz - пока что не используем
 from googletrans import Translator
 from pymorphy3 import MorphAnalyzer
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
-from src.application.analyze import interfaces as analyze_interfaces
-from src.application.collection import interfaces as collection_interfaces
+from src.application.analyze import interfaces
 from src.application.constants import GENDERS, PartOfSpeech, SentimentCategory
 from src.application.utils import round_float
 from src.application.collection import entities
 
 
 @dataclass
-class NLPService(analyze_interfaces.INLPService):
+class NLPService(interfaces.INLPService):
     """
     Сервис обработки естественного языка (Natural Language Processing).
 
@@ -62,8 +60,8 @@ class NLPService(analyze_interfaces.INLPService):
         настроения и числовым значением оценки.
         """
         sentiment_categories = {
-            score > 0.05: (SentimentCategory.POSITIVE, score),
-            score < -0.05: (SentimentCategory.NEGATIVE, score),
+            score > 0.55: (SentimentCategory.POSITIVE, score),
+            score < -0.45: (SentimentCategory.NEGATIVE, score),
         }
 
         # Если ни одно условие не выполнено,
@@ -337,7 +335,7 @@ class NLPService(analyze_interfaces.INLPService):
             city.raw_name: city.original_name
             for city in all_cities
         }
-        
+
         for review in reviews:
             # Токенизируем текст отзыва и проводим морфологический анализ
             tokens = self._clean_text(review["message"]).split()

@@ -26,6 +26,19 @@ class FileEmptyException(HTTPException):
     detail: str = "Файл пустой."
 
 
+@dataclass
+class PremiumSubscriptionRequiredException(HTTPException):
+    allowed_num_rows: int
+    status_code: int = 403
+    detail: str | None = None
+
+    def __post_init__(self) -> None:
+        self.detail = (
+            "Вам нужен премиум аккаунт, "
+            f"чтобы загрузить больше {self.allowed_num_rows} строк отзывов."
+        )
+
+
 # Ошибки, связанные с пользователем
 @dataclass
 class UserExistsException(HTTPException):
@@ -81,3 +94,9 @@ class ReviewsProcessingException(HTTPException):
 class AnalyzeServiceException(HTTPException):
     detail: str = "Произошла ошибка в сервисе анализа."
     status_code: int = 500
+
+
+@dataclass
+class AnalyzeNotFoundException(HTTPException):
+    status_code: int = 404
+    detail: str = "Результат анализа не найден."

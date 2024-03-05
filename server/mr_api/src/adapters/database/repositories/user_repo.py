@@ -68,3 +68,57 @@ class UserRepository(SABaseRepository, interfaces.IUserRepository):
         if user:
             return entities.User(**user)
         return None
+
+    async def get_user_by_id(self, user_id: int) -> entities.User | None:
+        """
+        Получает пользователя из базы данных по его id.
+
+        :param user_id: ID пользователя.
+
+        :return: Пользователь с указанным id,
+        если найден, в противном случае None.
+        """
+        table: sqla.Table = tables.users
+
+        query: sqla.Select = (
+            sqla.select(
+                table
+            )
+            .filter(
+                table.c.id == user_id
+            )
+        )
+
+        user = self.session.execute(query).mappings().one_or_none()
+
+        if user:
+            return entities.User(**user)
+        return None
+
+    async def get_user_premium_by_id(
+        self,
+        user_id: int
+    ) -> entities.UserIsPremium | None:
+        """
+        Получает статус подписки из базы данных по его id.
+
+        :param user_id: ID пользователя.
+
+        :return: Есть премиум или нет | None.
+        """
+        table: sqla.Table = tables.users
+
+        query: sqla.Select = (
+            sqla.select(
+                table.c.is_premium
+            )
+            .filter(
+                table.c.id == user_id
+            )
+        )
+
+        user = self.session.execute(query).mappings().one_or_none()
+
+        if user:
+            return entities.UserIsPremium(**user)
+        return None

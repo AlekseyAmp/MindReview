@@ -102,7 +102,7 @@ class AuthService:
             user.email
         )
 
-        if not user_data:
+        if user_data is None:
             raise exceptions.UserNotFoundException()
 
         if not verify_password(user.password, user_data.password):

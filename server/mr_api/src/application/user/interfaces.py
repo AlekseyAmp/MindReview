@@ -17,6 +17,13 @@ class IUserRepository(ABC):
     async def get_user_by_email(self, email: str) -> entities.User | None:
         pass
 
-    # @abstractmethod
-    # async def get_user_by_id(self, user_id: int) -> user_schemas.UserRead:
-    #     pass
+    @abstractmethod
+    async def get_user_by_id(self, user_id: int) -> entities.User | None:
+        pass
+
+    @abstractmethod
+    async def get_user_premium_by_id(
+        self,
+        user_id: int
+    ) -> entities.UserIsPremium | None:
+        pass

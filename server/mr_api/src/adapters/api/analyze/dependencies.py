@@ -4,7 +4,10 @@ from sqlalchemy.orm import Session
 
 from fastapi import Depends
 
-from src.adapters.database.repositories.analyze_repo import AnalyzeRepository
+from src.adapters.database.repositories import (  # noqa
+    AnalyzeRepository,
+    UserRepository,
+)
 from src.adapters.database.sa_session import get_session
 from src.adapters.excel.manager import ExcelManager
 from src.adapters.notify.websocket import WebSocketManager
@@ -16,6 +19,12 @@ def get_analyze_repo(
     session: Session = Depends(get_session)
 ) -> AnalyzeRepository:
     return AnalyzeRepository(session)
+
+
+def get_user_repo(
+    session: Session = Depends(get_session)
+) -> UserRepository:
+    return UserRepository(session)
 
 
 async def get_io_manager() -> RabbitMQManager:
@@ -46,6 +55,7 @@ def get_excel_manager() -> ExcelManager:
 
 def get_review_processing_service(
     analyze_repo: AnalyzeRepository = Depends(get_analyze_repo),
+    user_repo: UserRepository = Depends(get_user_repo),
     review_producer: ReviewProducer = Depends(get_review_producer),
     analyze_consumer: AnalyzeConsumer = Depends(get_analyze_consumer),
     websocket_manager: WebSocketManager = Depends(get_websocket_manager),
@@ -53,6 +63,7 @@ def get_review_processing_service(
 ) -> ReviewProcessingService:
     return ReviewProcessingService(
         analyze_repo,
+        user_repo,
         review_producer,
         analyze_consumer,
         websocket_manager,

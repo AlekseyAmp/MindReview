@@ -6,6 +6,7 @@ from fastapi import (
     WebSocket,
     WebSocketDisconnect,
 )
+from fastapi.responses import FileResponse
 
 from src.adapters.api.analyze import schemas
 from src.adapters.api.analyze.dependencies import (
@@ -54,7 +55,8 @@ async def make_analyze_from_file(
 ) -> dict[str, str]:
 
     await review_processing_service.process_reviews_from_file_middleware(
-        file
+        file,
+        user_id
     )
     background_task.add_task(
         review_processing_service.process_reviews_from_file,
@@ -63,3 +65,22 @@ async def make_analyze_from_file(
     )
 
     return {"message": "Ваши отзывы отправлены на анализ."}
+
+
+@router.get(path="/download/{analyze_id}", response_class=FileResponse)
+async def download_analyze(
+    analyze_id: int,
+    review_processing_service: ReviewProcessingService = Depends(
+        get_review_processing_service
+    ),
+    user_id: int = Depends(get_user_id)
+) -> FileResponse:
+    download = await review_processing_service.download_analyze(
+        analyze_id,
+        user_id
+    )
+    return FileResponse(
+        path=download["file_path"],
+        filename=download["file_name"],
+        media_type='multipart/form-data'
+    )

@@ -124,7 +124,7 @@ function Main() {
                 height={188}
                 onChange={(e) => setReviews(e.target.value)}
               />
-              <div className={`mt35px ${styles.testButton}`}>
+              <div className={`mt35px`}>
                 <PurpleButton
                   title={"Попробовать"}
                   width={422}

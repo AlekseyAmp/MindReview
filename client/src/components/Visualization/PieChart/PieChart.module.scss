@@ -1,0 +1,9 @@
+@import '../../../assets/variables.scss';
+
+
+.pieChart {
+    margin-top: 25px;
+    background-color: $white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    border-radius: 25px;
+}

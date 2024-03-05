@@ -17,6 +17,14 @@ class EntryAnalyze:
     sentiment: str
     keywords: list[str | None]
     other_info: OtherInfo
+    
+    
+@dataclass
+class FullAnalyze:
+    keywords_cloud: dict[str, int] | None
+    sentiments_data: dict[str, dict[str | dict] | int]
+    keyword_sentiment_counts: dict[str, dict[str, int]] | None
+    geographical_map: dict[str, int] | None
 
 
 @dataclass

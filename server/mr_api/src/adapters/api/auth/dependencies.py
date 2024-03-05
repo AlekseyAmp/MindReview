@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from fastapi import Depends, Request
 
 from src.adapters.api.auth.token import TokenManager
-from src.adapters.database.repositories.user_repo import UserRepository
+from src.adapters.database.repositories import UserRepository
 from src.adapters.database.sa_session import get_session
 from src.application import exceptions
 from src.application.auth.services import AuthService

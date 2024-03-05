@@ -45,3 +45,11 @@ class Status(Enum):
     """
     COMPLETE: str = "complete"
     ERROR: str = "error"
+
+
+# Макс. кол-во строк загружаемых отзывов
+#   для не-премиум пользователей
+ALLOWED_NUM_ROWS: int = 500
+
+# Если нет определенных данных в анализе
+NOT_EXCEL_DATA: str = "Нет данных"

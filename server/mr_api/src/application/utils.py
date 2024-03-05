@@ -4,6 +4,7 @@ from datetime import datetime
 from pathlib import Path
 
 import pytz
+from openpyxl.worksheet.worksheet import Worksheet
 from passlib.context import CryptContext
 
 from fastapi import UploadFile
@@ -95,7 +96,7 @@ def is_not_valid_file_format(filename: str) -> bool:
     return True
 
 
-def is_file_empty(ws) -> bool:
+def is_file_empty(ws: Worksheet) -> bool:
     """
     Проверяет, является ли файл пустым.
 
@@ -108,6 +109,21 @@ def is_file_empty(ws) -> bool:
             return False
 
     return True
+
+
+def get_file_num_rows(ws: Worksheet) -> int:
+    """
+    Возвращает количество строк в рабочем листе Excel.
+
+    Подсчитывает количество заполненных строк в указанном
+    рабочем листе Excel и возвращает это значение.
+
+    :param ws: Рабочий лист (Worksheet) Excel для подсчета строк.
+
+    :return: Количество строк в рабочем листе.
+    """
+    num_rows = ws.max_row
+    return num_rows
 
 
 def save_file(file: UploadFile, user_id: str) -> str:

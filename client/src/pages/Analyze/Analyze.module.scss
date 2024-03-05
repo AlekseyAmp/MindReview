@@ -1,0 +1,167 @@
+@import '../../assets/variables.scss';
+
+.analyze {
+    margin-top: 150px;
+    display: flex;
+    flex-direction: column;
+
+    .shortAnalyzeResults {
+        margin-bottom: 20px;
+
+        h3 {
+            text-align: center;
+            font-size: 20px;
+        }
+
+        .shortAnalyzeTable {
+            margin-top: 25px;
+            border-collapse: collapse;
+            display: flex;
+            justify-content: center;
+            
+            td {
+                border: 1px solid #ddd;
+                padding: 8px;
+
+                &:first-child {
+                    font-weight: bold;
+                }
+            }
+
+            tr:nth-child(even) {
+                background-color: #f2f2f2ba;
+            }
+        }
+    }
+
+    .visualization {
+        display: flex;
+        flex-direction: column;
+
+        .visualizationTitle {
+            font-size: 20px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .top {
+            margin-top: 25px;
+            display: flex;
+            justify-content: space-between;
+            flex-direction: row;
+            gap: 25px;
+
+            .topRight {
+                display: flex;
+                flex-direction: column;
+                align-items: end;
+            }
+        }
+
+        .bottom {
+            margin-top: 50px;
+            display: flex;
+            flex-direction: row;
+            align-items: start;
+            gap: 25px;
+        }
+    }
+
+    .analyzeBlock {
+        margin-top: 65px;
+        
+        .analyzeContent {
+            gap: 100px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .analyzeFilters {
+            display: flex;
+            flex-direction: column;
+            gap: 30px;
+            input[type="checkbox"] {
+                width: 1.3em;
+                height: 1.3em;
+                background-color: white;
+                border-radius: 20%;
+                vertical-align: middle;
+                border: 1px solid $gray;
+                appearance: none;
+                -webkit-appearance: none;
+                outline: none;
+                cursor: pointer;
+              }
+              
+              /* Стиль при фокусе */
+              input[type="checkbox"]:focus {
+                border: 1px solid $purple;
+              }
+              
+              /* Стили для псевдоэлемента, отображающего галочку */
+              input[type="checkbox"]:checked::after {
+                content: '✓';
+                font-size: 1em; /* размер галочки */
+                color: $purple; /* цвет галочки */
+                position: relative;
+                left: 2px;
+                top: -2px;
+              }
+              
+              /* Изменение цвета границы чекбокса при отмеченном состоянии */
+              input[type="checkbox"]:checked {
+                border-color: $purple;
+              }
+              
+              label {
+                display: flex;
+                flex-direction: row;
+                align-items: center;
+                gap: 5px;
+            }
+            .filterSubtitle {
+                font-size: 17px;
+            }
+
+            .keywordFilters, .locationFilters, .sentimentFilters {
+                .filterOptions {
+                    margin-top: 15px;
+                    display: grid;
+                    grid-template-columns: repeat(3, 1fr);
+                    grid-gap: 15px;
+                  }
+                .title {
+                    font-weight: bold;
+                    transition: 0.3s;
+                    cursor: pointer;
+                    margin-top: 15px;
+                }
+                .title:hover {
+                    color: $orange
+                }
+            }
+        }
+
+        .analyzeTitle {
+            font-weight: bold;
+            font-size: 20px;
+        }
+    }
+
+    .nonAuthorized {
+        margin-top: 35px;
+        text-align: center;
+
+        h3 {
+            font-size: 18px;
+        }
+    }
+
+    .notData {
+        h3 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 20px;
+        }
+    }
+}

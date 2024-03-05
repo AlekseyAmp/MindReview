@@ -1,8 +1,8 @@
 import React, { useState } from 'react';
-import styles from './ReviewCard.module.scss';
+import styles from './AnalyzeCard.module.scss';
 import { getSentimentInfo } from '../../../utils/review';
 
-function ReviewCard({ review }) {
+function AnalyzeCard({ review }) {
     const [isOtherInfoOpen, setIsOtherInfoOpen] = useState(false);
 
     const toggleOtherInfo = () => {
@@ -34,7 +34,7 @@ function ReviewCard({ review }) {
                         <>
                             <h3 className={`bold-text`}>Ключевые слова ({keywords.length}):</h3>
                             <div className={styles.tags}>
-                                {keywords.map((word, index) => (
+                                {keywords.sort().map((word, index) => (
                                     <span key={index} className={`${styles.tag} white-text`}>{word}</span>
                                 ))}
                             </div>
@@ -44,18 +44,20 @@ function ReviewCard({ review }) {
                     )}
                 </div>
                 <div className={styles.otherInfoBlock}>
-                    <div className={styles.otherToggle} onClick={toggleOtherInfo}>
-                        <h3 className={`${styles.title} bold-text`}>
-                            {isOtherInfoOpen ? 'Скрыть' : 'Прочая информация'}
-                        </h3>
-                    </div>
-                    {isOtherInfoOpen && (
+                    {(cities.length > 0 || years.length > 0) && (
+                        <div className={styles.otherToggle} onClick={toggleOtherInfo}>
+                            <h3 className={`${styles.title} gray-text`}>
+                                {!isOtherInfoOpen ? 'Прочая информация ▼' : 'Скрыть ▲'}
+                            </h3>
+                        </div>
+                    )}
+                    {isOtherInfoOpen && (cities.length > 0 || years.length > 0) && (
                         <div className={styles.otherInfo}>
                             {cities.length > 0 && (
                                 <>
                                     <h3 className={`dark-text`}>Упоминания городов ({cities.length}):</h3>
                                     <div className={styles.tags}>
-                                        {cities.map((city, index) => (
+                                        {cities.sort().map((city, index) => (
                                             <span key={index} className={`${styles.tag} white-text`}>{city}</span>
                                         ))}
                                     </div>
@@ -65,13 +67,16 @@ function ReviewCard({ review }) {
                                 <>
                                     <h3 className={`dark-text`}>Упоминания годов, возрастов ({years.length}):</h3>
                                     <div className={styles.tags}>
-                                        {years.map((year, index) => (
+                                        {years.sort().map((year, index) => (
                                             <span key={index} className={`${styles.tag} white-text`}>{year}</span>
                                         ))}
                                     </div>
                                 </>
                             )}
                         </div>
+                    )}
+                    {(!isOtherInfoOpen && cities.length === 0 && years.length === 0) && (
+                        <h3 className="gray-text" style={{ fontWeight: "bold" }}>Прочей информации не найдено</h3>
                     )}
                 </div>
             </div>
@@ -94,4 +99,4 @@ function ReviewCard({ review }) {
     );
 };
 
-export default ReviewCard;
+export default AnalyzeCard;

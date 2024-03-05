@@ -5,6 +5,7 @@ from src.adapters.rpc.settings import settings
 from src.application.analyze import entities, interfaces
 from src.application.collection import interfaces as collection_interfaces
 from src.application.constants import Status
+from src.application.utils import round_float
 
 
 @dataclass
@@ -86,16 +87,21 @@ class AnalyzeService:
             logging.info("Анализ завершён")
 
             # Подготавливаем результат анализа по каждому отзыву
-            entries_analyze = self._prepare_entries_analyze(
+            entries_analyze = (self._prepare_entries_analyze(
                 reviews,
                 nlp_result
+            ))
+            entries_analyze_dicts = [asdict(entry) for entry in entries_analyze]
+
+            full_analyze = self._prepare_full_analyze(
+                entries_analyze
             )
 
             # Формирование результатов анализа
             analyze_results = asdict(
                 entities.AnalyzeResults(
-                    entries_analyze=entries_analyze,
-                    full_analyze={1: 1},
+                    entries_analyze=entries_analyze_dicts,
+                    full_analyze=asdict(full_analyze),
                     status=Status.COMPLETE.value
                 )
             )
@@ -142,17 +148,15 @@ class AnalyzeService:
             years = nlp_result.years.get(review_number)
 
             entries_analyze.append(
-                asdict(
-                    entities.EntryAnalyze(
-                        number=review_number,
-                        raiting=review.get("raiting"),
-                        message=review.get("message"),
-                        sentiment=sentiment,
-                        keywords=keywords_list,
-                        other_info=entities.OtherInfo(
-                            cities,
-                            years
-                        )
+                entities.EntryAnalyze(
+                    number=review_number,
+                    raiting=review.get("raiting"),
+                    message=review.get("message"),
+                    sentiment=sentiment,
+                    keywords=keywords_list,
+                    other_info=entities.OtherInfo(
+                        cities if cities else [],
+                        years if years else []
                     )
                 )
             )
@@ -162,5 +166,65 @@ class AnalyzeService:
     def _prepare_full_analyze(
         self,
         entries_analyze: list[entities.EntryAnalyze],
-    ):
-        pass
+    ) -> entities.FullAnalyze:
+        
+        # Собираем облако ключевых слов
+        keywords_cloud = {}
+        for entry in entries_analyze:
+            for keyword in entry.keywords:
+                if keyword in keywords_cloud:
+                    keywords_cloud[keyword] += 1
+                else:
+                    keywords_cloud[keyword] = 1
+
+        # Собираем данные о сентименте
+        sentiments_data = {
+            'total': 0,
+            'sentiments': {}
+        }
+        for entry in entries_analyze:
+            if entry.sentiment:
+                sentiment = entry.sentiment[0]
+                sentiment_key = sentiment
+
+                if sentiment_key not in sentiments_data['sentiments']:
+                    sentiments_data['sentiments'][sentiment_key] = {'count': 0}
+
+                sentiments_data['sentiments'][sentiment_key]['count'] += 1
+                
+                # Увеличиваем total_sentiments
+                sentiments_data['total'] += 1 
+
+        # Рассчитываем процент сентиментов
+        total_sentiments = sentiments_data['total']
+        for sentiment_data in sentiments_data['sentiments'].values():
+            percentage = (sentiment_data['count'] / total_sentiments) * 100
+            sentiment_data['percentage'] = round(percentage, 2)
+
+        # Собираем информацию о количестве упоминаний
+        #   ключевых слов для каждого сентимента
+        keyword_sentiment_counts = {}
+        for entry in entries_analyze:
+            sentiment = entry.sentiment[0]
+            keywords = entry.keywords
+            if sentiment not in keyword_sentiment_counts:
+                keyword_sentiment_counts[sentiment] = {}
+            for keyword in keywords:
+                if keyword:
+                    if keyword not in keyword_sentiment_counts[sentiment]:
+                        keyword_sentiment_counts[sentiment][keyword] = 0
+                    keyword_sentiment_counts[sentiment][keyword] += 1
+        
+        # Собираем информацию о количестве упоминаний городов (географическая карта)
+        geographical_map = {}
+        for entry in entries_analyze:
+            if entry.other_info.cities:
+                for city in entry.other_info.cities:
+                    geographical_map[city] = geographical_map.get(city, 0) + 1
+
+        return entities.FullAnalyze(
+            keywords_cloud=keywords_cloud,
+            sentiments_data=sentiments_data,
+            keyword_sentiment_counts=keyword_sentiment_counts,
+            geographical_map=geographical_map
+        )

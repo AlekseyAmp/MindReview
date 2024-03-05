@@ -1,14 +1,14 @@
 @import '../../../assets/variables.scss';
 
 .card {
-    width: 930px;
+    width: 750px;
     display: flex;
     justify-content: space-between;
     padding: 10px 20px;
     border-radius: 10px;
     background-color: $white;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
-    margin-top: 20px;
+    margin-top: 25px;
 
     @media screen and (max-width: 1000px) {
         width: 100%;
@@ -16,15 +16,15 @@
     }
 
     h3 {
-        font-size: 14px;
+        font-size: 16px;
     }
 
     span {
-        font-size: 14px;
+        font-size: 16px;
     }
 
     .left {
-        width: calc(85% - 10px);
+        width: calc(80% - 10px);
         max-width: 1200px;
 
         @media screen and (max-width: 1000px) {
@@ -32,46 +32,57 @@
         }
 
         .header {
-            margin-bottom: 10px;
 
             p {
-                font-size: 13px;
+                font-size: 14px;
             }
         }
 
         .messageBlock {
             p {
-                font-size: 15px;
+                font-size: 17px;
             }
 
+            margin-top: 15px;
             width: 100%;
             word-wrap: break-word;
         }
 
         .keywordsBlock {
             margin-top: 15px;
+
+            h3 {
+                font-size: 15px;
+            }
         }
 
         .otherInfoBlock {
+            h3 {
+                font-size: 15px;
+            }
+
             margin-top: 15px;
+            transition: 0.2s;
 
             .otherToggle {
                 display: inline-block;
                 cursor: pointer;
                 user-select: none;
+
+                h3 {
+                    font-size: 15px;
+                    font-weight: bold;
+                    transition: 0.2s;
+                }
+
+                h3:hover {
+                    color: $orange;
+                }
             }
+
 
             .otherInfo {
                 margin-top: 5px;
-
-                p {
-                    font-size: 13px;
-                    font-weight: 500;
-                }
-
-                span {
-                    font-weight: bold;
-                }
             }
         }
     }
@@ -91,7 +102,7 @@
         .sentimentBlock {
             padding: 5px 10px;
             border-radius: 7px;
-            font-size: 13px;
+            font-size: 14px;
             max-width: 100%;
         }
 
@@ -115,12 +126,12 @@
     }
 
     .tags {
-        margin-top: 5px;
+        margin-top: 10px;
         display: flex;
         flex-wrap: wrap;
 
         .tag {
-            font-size: 14px;
+            font-size: 15px;
             margin-right: 5px;
             margin-bottom: 5px;
             background-color: $purple;

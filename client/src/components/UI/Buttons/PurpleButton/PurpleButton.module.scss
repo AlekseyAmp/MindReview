@@ -1,6 +1,7 @@
 @import '../../../../assets/variables.scss';
 
 .purpleButton {
+    display: inline-block;
     button {
         text-align: center;
         cursor: pointer;
@@ -8,7 +9,7 @@
         border: none;
         border-radius: 7px;
         background: $purple;
-        padding: 10px 20;
+        padding: 10px 20px;
         color: $white;
         font-family: 'Mulish';
         font-size: 16px;
@@ -18,7 +19,7 @@
 }
 
 .purpleButton button:hover{
-    background: transparent;
+    background: $white;
     border: 2px solid $purple;
     color: $purple;
 }

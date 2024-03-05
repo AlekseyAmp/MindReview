@@ -17,6 +17,14 @@ class IAnalyzeRepository(ABC):
     ) -> entities.AnalyzeReturn:
         pass
 
+    @abstractmethod
+    async def get_analyze_by_id(
+        self,
+        analyze_id: int,
+        user_id: int
+    ) -> entities.AnalyzeReturn | None:
+        pass
+
 
 class IReviewProducer(ABC):
 
@@ -66,4 +74,12 @@ class ExcelManager(ABC):
 
     @abstractmethod
     def load_data(self, file: typing.BinaryIO) -> Worksheet:
+        pass
+
+    @abstractmethod
+    def create_analyze_report(
+        self,
+        short_analyze: list,
+        full_analyze: list
+    ) -> str:
         pass

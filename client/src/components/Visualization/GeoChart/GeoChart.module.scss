@@ -1,0 +1,82 @@
+@import '../../../assets/variables.scss';
+
+
+.geoChart {
+    width: fit-content;
+    height: fit-content;
+    padding: 20px 10px;
+    margin-top: 25px;
+    background-color: $white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    border-radius: 10px;
+
+    h3 {
+        margin-bottom: 30px;
+        font-size: 17px;
+    }
+
+    .cities {
+        display: grid;
+        gap: 10px;
+        
+        p {
+            font-size: 16px;
+            span {
+                font-size: 16px;
+                font-weight: bold;
+            }
+        }
+        .showMore {
+            font-weight: bold;
+            margin-top: 15px;
+            transition: 0.2s;
+            cursor: pointer;
+        }
+        .showMore:hover {
+            color: $orange;
+        }
+    
+    }
+    .fullChartOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0, 0, 0, 0.5);
+        z-index: 9999;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    
+    .fullChartContainer {
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        border-radius: 10px;
+        position: relative;
+        height: auto;
+        width: 100%; /* Ширина контейнера с графиком */
+        max-width: 500px; /* Максимальная ширина контейнера с графиком */
+        max-height: 90%;
+        overflow: auto;
+        background-color: white;
+        .modalContent {
+            padding: 20px;
+            h3 {
+                font-size: 17px;
+            }
+            span {
+                font-weight: bold;
+            }
+        }
+        .closeButton {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            cursor: pointer;
+        }
+    }
+    
+    
+}
+
