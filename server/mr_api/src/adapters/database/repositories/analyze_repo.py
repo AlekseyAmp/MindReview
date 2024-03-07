@@ -82,3 +82,74 @@ class AnalyzeRepository(SABaseRepository, interfaces.IAnalyzeRepository):
         if analyze:
             return entities.AnalyzeReturn(**analyze)
         return None
+
+    async def get_last_analyze_by_user_id(
+        self,
+        user_id: int
+    ) -> entities.AnalyzeReturn | None:
+        """
+        Получает последний результат анализа из базы данных
+        по ID пользователя.
+
+        :param user_id: ID пользователя.
+
+        :return: Объект анализа или None, если анализ не найден.
+        """
+        table: sqla.Table = tables.analyze
+
+        query: sqla.Select = (
+            sqla.select(
+                table.c.id,
+                table.c.dt,
+                table.c.source_type,
+                table.c.source_url,
+                table.c.entries_analyze,
+                table.c.full_analyze,
+                table.c.status
+            )
+            .filter(
+                table.c.user_id == user_id
+            )
+        ).order_by(table.c.dt.desc()).limit(1)
+
+        analyze = self.session.execute(query).mappings().first()
+
+        if analyze:
+            return entities.AnalyzeReturn(**analyze)
+        return None
+
+    async def get_all_analyze_result_by_user_id(
+        self,
+        user_id: int
+    ) -> list[entities.AnalyzeReturn | None]:
+        pass
+        """
+        Получает все последние результат анализа из базы данных
+        по ID пользователя.
+
+        :param user_id: ID пользователя.
+
+        :return: Объект анализа или None, если анализ не найден.
+        """
+        table: sqla.Table = tables.analyze
+
+        query: sqla.Select = (
+            sqla.select(
+                table.c.id,
+                table.c.dt,
+                table.c.source_type,
+                table.c.source_url,
+                table.c.entries_analyze,
+                table.c.full_analyze,
+                table.c.status
+            )
+            .filter(
+                table.c.user_id == user_id
+            )
+        ).order_by(table.c.id.desc())
+
+        result = self.session.execute(query).mappings().all()
+
+        if result:
+            return [entities.AnalyzeReturn(**row) for row in result]
+        return []

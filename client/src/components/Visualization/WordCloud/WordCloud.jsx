@@ -4,7 +4,7 @@ import "tippy.js/dist/tippy.css";
 import "tippy.js/animations/scale.css";
 import styles from './WordCloud.module.scss';
 
-function WordCloud({ keywords }) {
+function WordCloud({ keywords, title }) {
     const [cloudWidth, setCloudWidth] = useState(1);
     const [cloudHeight, setCloudHeight] = useState(1);
 
@@ -14,14 +14,13 @@ function WordCloud({ keywords }) {
     const handleResize = () => {
         const container = document.getElementById('wordcloud-container');
         if (container) {
-            const parentWidth = container.offsetWidth; // Получаем ширину контейнера
-            const newWidth = parentWidth < cloudWidth ? parentWidth : cloudWidth; // Ограничиваем минимальную ширину до 500
+            const parentWidth = container.offsetWidth;
+            const newWidth = parentWidth < cloudWidth ? parentWidth : cloudWidth;
             setCloudWidth(newWidth);
-            setCloudHeight(newWidth); // Для сохранения соотношения сторон, можно использовать другие коэффициенты
+            setCloudHeight(newWidth);
         }
     };
 
-    // Обработчик изменения размера окна
     useEffect(() => {
         handleResize();
         window.addEventListener('resize', handleResize);
@@ -52,12 +51,12 @@ function WordCloud({ keywords }) {
         <>
             {wordCloudData.length > 0 ? (
                 <div id="wordcloud-container" className={styles.wordcloud}>
-                    <h3 className={`bold-text`}>Облако ключевых слов ({numberOfWords})</h3>
+                    <h3 className={`bold-text`}>{title} ({numberOfWords})</h3>
                     <ReactWordcloud words={wordCloudData} options={options} size={[500, 300]} />
                 </div>
             ) : (
                 <div className={styles.notData}>
-                    <h3 className={`bold-text`}>Облако ключевых слов ({numberOfWords})</h3>
+                    <h3 className={`bold-text`}>{title} ({numberOfWords})</h3>
                     <p className={`dark-text mt35px`} style={{ textAlign: 'center' }}>Ключевых слов не обнаружено</p>
                 </div>
             )}

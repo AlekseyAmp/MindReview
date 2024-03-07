@@ -1,0 +1,25 @@
+@import '../../assets/variables.scss';
+
+.dropzoneContainer {
+    display: flex;
+    justify-content: center;
+    .dropzone {
+        transition: 0.2s;
+        margin-top: 50px;
+        border: 2px dashed #ccc;
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        cursor: pointer;
+        height: 350px;
+        width: 500px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+    }
+}
+.dropzone:hover {
+    background-color: $card_hover;
+}

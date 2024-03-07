@@ -56,9 +56,14 @@ class AuthService:
 
         user_data = await self.user_repo.create_user(user)
 
+        token_headers = {
+            "is_premium": user_data.is_premium,
+            "role": user_data.role
+        }
         if user_data:
             tokens = self.token_manager.create_tokens(
                 user_data.id,
+                token_headers,
                 response,
                 authorize
             )
@@ -108,8 +113,13 @@ class AuthService:
         if not verify_password(user.password, user_data.password):
             raise exceptions.InvalidCredentialsException()
 
+        token_headers = {
+            "is_premium": user_data.is_premium,
+            "role": user_data.role
+        }
         tokens = self.token_manager.create_tokens(
             user_data.id,
+            token_headers,
             response,
             authorize
         )

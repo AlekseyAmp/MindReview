@@ -10,6 +10,7 @@ from src.application import exceptions
 from src.application.constants import (
     ALLOWED_NUM_ROWS,
     NOT_EXCEL_DATA,
+    PremiumSubscriptionRequiredTypes,
     SourceType,
     Status,
     TimeConstants,
@@ -18,6 +19,7 @@ from src.application.review import entities
 from src.application.review import interfaces as review_interfaces
 from src.application.user import interfaces as user_interfaces
 from src.application.utils import (
+    datetime_to_excel,
     datetime_to_json,
     get_current_dt,
     get_file_num_rows,
@@ -165,7 +167,8 @@ class ReviewProcessingService:
             and get_file_num_rows(ws) > ALLOWED_NUM_ROWS
         ):
             raise exceptions.PremiumSubscriptionRequiredException(
-                ALLOWED_NUM_ROWS
+                type=PremiumSubscriptionRequiredTypes.MAX_ROWS.value,
+                allowed_num_rows=ALLOWED_NUM_ROWS
             )
 
         return None
@@ -174,7 +177,7 @@ class ReviewProcessingService:
         self,
         file: UploadFile,
         user_id: int
-    ) -> schemas.AnalyzeResponse | None:
+    ) -> None:
         """
         Обрабатывает отзывы из загруженного файла.
 
@@ -191,7 +194,7 @@ class ReviewProcessingService:
         :raises AnalyzeServiceException: Если в сервисе анализа случилась
         ошибка.
 
-        return: schemas.AnalyzeResponse | None
+        return: None
         """
 
         # Загрузка и чтение данных из Excel файла
@@ -215,8 +218,8 @@ class ReviewProcessingService:
                     )
                 )
 
-        # Сохранение пути к файлу на сервере
-        file_path = save_file(file, user_id)
+        # Сохранение файла на сервере
+        save_file(file, user_id)
 
         try:
             # Отправка отзывов в очередь для анализа
@@ -241,7 +244,7 @@ class ReviewProcessingService:
                         user_id=user_id,
                         dt=get_current_dt(TimeConstants.DEFAULT_TIMEZONE),
                         source_type=SourceType.FILE.value,
-                        source_url=file_path,
+                        source_url=file.filename,
                         entries_analyze=analyze_results["entries_analyze"],
                         full_analyze=analyze_results["full_analyze"],
                         status=analyze_results["status"]
@@ -262,11 +265,6 @@ class ReviewProcessingService:
                     )
 
                     return None
-                    # Конвертация даты анализа в строковый формат
-                    # analyze.dt = datetime_to_json(analyze.dt)
-                    # return schemas.AnalyzeResponse(
-                    #     **asdict(analyze)
-                    # )
         except Exception as e:
             logger.exception(
                 "Произошла ошибка при обработке отзывов из файла: %s", str(e)
@@ -277,7 +275,7 @@ class ReviewProcessingService:
                 user_id=user_id,
                 dt=get_current_dt(TimeConstants.DEFAULT_TIMEZONE),
                 source_type=SourceType.FILE.value,
-                source_url=file_path,
+                source_url=file.filename,
                 entries_analyze=None,
                 full_analyze=None,
                 status=analyze_results["status"]
@@ -292,55 +290,60 @@ class ReviewProcessingService:
 
             return None
 
-    async def download_analyze(
+
+@dataclass
+class ResultAnalyzeService:
+    """
+    Сервис для работы с результатами анализа.
+    """
+
+    analyze_repo: review_interfaces.IAnalyzeRepository
+    user_repo: user_interfaces.IUserRepository
+    excel_manager: review_interfaces.ExcelManager
+
+    async def get_analyze_results(
         self,
-        analyze_id: int,
-        user_id: int
-    ) -> dict[str, str]:
-        """
-        Скачивает результат анализа в формате Excel.
-
-        :param analyze_id: Идентификатор анализа.
-        :param user_id: Идентификатор пользователя.
-
-        :return: Словарь с информацией о скачанном файле.
-
-        :raises AnalyzeNotFoundException: Если анализ с
-        указанным идентификатором не найден.
-        """
-
-        analyze = await self.analyze_repo.get_analyze_by_id(
-            analyze_id,
-            user_id
-        )
+        user_id: int,
+        analyze_id: int | None = None
+    ) -> schemas.AnalyzeResponse | None:
+        if analyze_id:
+            analyze = await self.analyze_repo.get_analyze_by_id(
+                analyze_id,
+                user_id
+            )
+        else:
+            analyze = await self.analyze_repo.get_last_analyze_by_user_id(
+                user_id
+            )
 
         if analyze is None:
             raise exceptions.AnalyzeNotFoundException
 
-        logger.info("Формируем результат анализа в Excel файл.")
+        # Конвертация даты анализа в строковый формат
+        analyze.dt = datetime_to_json(analyze.dt)
 
-        analyze_dict = asdict(analyze)
-        full_analyze = await self._process_full_analyze_report_data(
-            analyze_dict
-        )
-        shot_analyze = await self._process_short_analyze_report_data(
-            analyze_dict
+        return schemas.AnalyzeResponse(
+            **asdict(analyze)
         )
 
-        logger.info("Excel файл с реузльтатом анализа сформирован.")
-
-        temp_file_path = self.excel_manager.create_analyze_report(
-            shot_analyze,
-            full_analyze
-        )
-
-        return {
-            "file_path": temp_file_path,
-            "file_name": (
-                "Результат анализа за "
-                f"{datetime_to_json(analyze.dt)}.xlsx"
+    async def get_all_analyze_results(
+        self,
+        user_id: int
+    ) -> list[schemas.AnalyzeResponse | None]:
+        all_analyze_results = await self.analyze_repo\
+            .get_all_analyze_result_by_user_id(
+                user_id
             )
-        }
+
+        for analyze in all_analyze_results:
+            analyze.dt = datetime_to_json(analyze.dt)
+
+        analyze_results = [
+            schemas.AnalyzeResponse(**asdict(analyze))
+            for analyze in all_analyze_results
+        ]
+
+        return analyze_results
 
     async def _process_short_analyze_report_data(self, analyze: dict) -> list:
         """
@@ -452,3 +455,61 @@ class ReviewProcessingService:
             full_analyze.append([NOT_EXCEL_DATA for _ in range(6)])
 
         return full_analyze
+
+    async def generate_analyze_results(
+        self,
+        analyze_id: int,
+        user_id: int
+    ) -> dict[str, str]:
+        """
+        Скачивает результат анализа в формате Excel.
+
+        :param analyze_id: Идентификатор анализа.
+        :param user_id: Идентификатор пользователя.
+
+        :return: Словарь с информацией о скачанном файле.
+
+        :raises AnalyzeNotFoundException: Если анализ с
+        указанным идентификатором не найден.
+        """
+
+        user = await self.user_repo.get_user_premium_by_id(user_id)
+        if (
+            not user.is_premium
+        ):
+            raise exceptions.PremiumSubscriptionRequiredException(
+                type=PremiumSubscriptionRequiredTypes.DOWNLOAD.value
+            )
+
+        analyze = await self.analyze_repo.get_analyze_by_id(
+            analyze_id,
+            user_id
+        )
+
+        if analyze is None:
+            raise exceptions.AnalyzeNotFoundException
+
+        logger.info("Формируем результат анализа в Excel файл.")
+
+        analyze_dict = asdict(analyze)
+        full_analyze = await self._process_full_analyze_report_data(
+            analyze_dict
+        )
+        shot_analyze = await self._process_short_analyze_report_data(
+            analyze_dict
+        )
+
+        logger.info("Excel файл с реузльтатом анализа сформирован.")
+
+        temp_file_path = self.excel_manager.create_analyze_report(
+            shot_analyze,
+            full_analyze
+        )
+
+        return {
+            "file_path": temp_file_path,
+            "file_name": (
+                "Результат анализа за "
+                f"{datetime_to_excel(analyze.dt)}.xlsx"
+            )
+        }

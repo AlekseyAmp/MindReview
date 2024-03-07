@@ -12,6 +12,7 @@ class TokenManager(interfaces.ITokenManager):
     def create_tokens(
         self,
         user_id: str,
+        headers: dict[str, str | bool],
         response: Response,
         authorize: AuthJWT
     ) -> tuple[str, str]:
@@ -35,10 +36,12 @@ class TokenManager(interfaces.ITokenManager):
 
         access_token = authorize.create_access_token(
             subject=str(user_id),
+            headers=headers,
             expires_time=access_token_expires
         )
         refresh_token = authorize.create_refresh_token(
             subject=str(user_id),
+            headers=headers,
             expires_time=refresh_token_expires
         )
 

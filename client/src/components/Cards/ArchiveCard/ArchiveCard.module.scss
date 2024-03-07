@@ -1,0 +1,78 @@
+@import '../../../assets/variables.scss';
+
+.card {
+    transition: 0.2s;
+    margin-top: 25px;
+    padding: 10px 20px;
+    border-radius: 10px;
+    background-color: $white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+
+    .cardContent {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 40px;
+
+        .sourceType {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            width: 250px;
+            font-size: 13px;
+            p {
+                display: flex;
+                align-items: center;
+                gap: 10px;
+                .sourceURL {
+                    word-break: break-all;
+                    font-size: 13px;
+                    span {
+                        font-size: 12px;
+                    }
+                }
+            }
+        }
+        .cardNumber {
+            p {
+                font-size: 13px;
+            }
+        }
+        .dt {
+            p {
+                font-size: 13px;
+                font-weight: bold;
+            }
+        }
+
+        .sentimentBlock {
+            width: 140px;
+            font-size: 13px;
+        }
+
+        .keywords,
+        .cities {
+
+            ul {
+                word-break: break-all;
+                li {
+                    font-size: 13px;
+                }
+
+                display: inline-flex;
+                flex-wrap: wrap;
+                width: 220px;
+                gap: 5px;
+            }
+        }
+        .buttons {
+            display: flex;
+            flex-direction: row;
+            gap: 20px;
+            button {
+                padding: 5px;
+                font-size: 13px;
+            }
+        }
+    }
+}

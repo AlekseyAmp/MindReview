@@ -10,12 +10,16 @@ from fastapi.responses import FileResponse
 
 from src.adapters.api.analyze import schemas
 from src.adapters.api.analyze.dependencies import (
+    get_result_analyze_service,
     get_review_processing_service,
     get_websocket_manager,
 )
 from src.adapters.api.user.dependencies import get_user_id
 from src.adapters.notify.websocket import WebSocketManager
-from src.application.review.services import ReviewProcessingService
+from src.application.review.services import (
+    ResultAnalyzeService,
+    ReviewProcessingService,
+)
 
 router = APIRouter()
 
@@ -67,20 +71,64 @@ async def make_analyze_from_file(
     return {"message": "Ваши отзывы отправлены на анализ."}
 
 
-@router.get(path="/download/{analyze_id}", response_class=FileResponse)
-async def download_analyze(
+@router.get(
+    path="/get/{analyze_id}",
+    response_model=schemas.AnalyzeResponse
+)
+async def get_analyze_results_by_id(
     analyze_id: int,
-    review_processing_service: ReviewProcessingService = Depends(
-        get_review_processing_service
+    result_analyze_service: ResultAnalyzeService = Depends(
+        get_result_analyze_service
+    ),
+    user_id: int = Depends(get_user_id)
+) -> schemas.AnalyzeResponse:
+    return await result_analyze_service.get_analyze_results(
+        user_id,
+        analyze_id
+    )
+
+
+@router.get(path="/get_last", response_model=schemas.AnalyzeResponse)
+async def get_last_analyze_results(
+    result_analyze_service: ResultAnalyzeService = Depends(
+        get_result_analyze_service
+    ),
+    user_id: int = Depends(get_user_id)
+) -> schemas.AnalyzeResponse:
+    return await result_analyze_service.get_analyze_results(
+        user_id
+    )
+
+
+@router.get(
+    path="/get_all",
+    response_model=list[schemas.AnalyzeResponse | None]
+)
+async def get_all_analyze_results(
+    result_analyze_service: ResultAnalyzeService = Depends(
+        get_result_analyze_service
+    ),
+    user_id: int = Depends(get_user_id)
+) -> list[schemas.AnalyzeResponse | None]:
+    return await result_analyze_service.get_all_analyze_results(
+        user_id
+    )
+
+
+@router.get(path="/download/{analyze_id}", response_class=FileResponse)
+async def download_analyze_results(
+    analyze_id: int,
+    result_analyze_service: ResultAnalyzeService = Depends(
+        get_result_analyze_service
     ),
     user_id: int = Depends(get_user_id)
 ) -> FileResponse:
-    download = await review_processing_service.download_analyze(
+    analyze_results = await result_analyze_service.generate_analyze_results(
         analyze_id,
         user_id
     )
     return FileResponse(
-        path=download["file_path"],
-        filename=download["file_name"],
+        path=analyze_results["file_path"],
+        filename=analyze_results["file_name"],
         media_type='multipart/form-data'
     )

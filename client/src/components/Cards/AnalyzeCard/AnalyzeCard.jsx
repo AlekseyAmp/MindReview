@@ -90,7 +90,7 @@ function AnalyzeCard({ review }) {
                 </div>
                 <div className={styles.raiting}>
                     <div className={styles.raitingInfo}>
-                        <img src="img/icons/raiting.svg" alt="raiting" />
+                        <img src="../img/icons/raiting.svg" alt="raiting" />
                         <span className={`purple-text`}>{rating}</span>
                     </div>
                 </div>

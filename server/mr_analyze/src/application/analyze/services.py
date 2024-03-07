@@ -5,7 +5,6 @@ from src.adapters.rpc.settings import settings
 from src.application.analyze import entities, interfaces
 from src.application.collection import interfaces as collection_interfaces
 from src.application.constants import Status
-from src.application.utils import round_float
 
 
 @dataclass
@@ -50,8 +49,8 @@ class AnalyzeService:
         """
         try:
             logging.info("Начало анализа отзывов")
-            
-            # Получаем список все городов        
+
+            # Получаем список все городов
             all_cities = self.data_repo.get_all_cities()
             self.keywords_stopwords.update(
                 city.raw_name
@@ -91,7 +90,10 @@ class AnalyzeService:
                 reviews,
                 nlp_result
             ))
-            entries_analyze_dicts = [asdict(entry) for entry in entries_analyze]
+            entries_analyze_dicts = [
+                asdict(entry)
+                for entry in entries_analyze
+            ]
 
             full_analyze = self._prepare_full_analyze(
                 entries_analyze
@@ -167,7 +169,7 @@ class AnalyzeService:
         self,
         entries_analyze: list[entities.EntryAnalyze],
     ) -> entities.FullAnalyze:
-        
+
         # Собираем облако ключевых слов
         keywords_cloud = {}
         for entry in entries_analyze:
@@ -191,9 +193,9 @@ class AnalyzeService:
                     sentiments_data['sentiments'][sentiment_key] = {'count': 0}
 
                 sentiments_data['sentiments'][sentiment_key]['count'] += 1
-                
+
                 # Увеличиваем total_sentiments
-                sentiments_data['total'] += 1 
+                sentiments_data['total'] += 1
 
         # Рассчитываем процент сентиментов
         total_sentiments = sentiments_data['total']
@@ -214,8 +216,9 @@ class AnalyzeService:
                     if keyword not in keyword_sentiment_counts[sentiment]:
                         keyword_sentiment_counts[sentiment][keyword] = 0
                     keyword_sentiment_counts[sentiment][keyword] += 1
-        
-        # Собираем информацию о количестве упоминаний городов (географическая карта)
+
+        # Собираем информацию о количестве упоминаний городов
+        #   (географическая карта)
         geographical_map = {}
         for entry in entries_analyze:
             if entry.other_info.cities:

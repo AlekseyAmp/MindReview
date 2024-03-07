@@ -40,7 +40,7 @@ class AnalyzeProducer(interfaces.IAnalyzeProducer):
         """
         Отправляет результаты анализа в указанную очередь.
 
-        :param analyze_result: Результаты анализа.
+        :param analyze_results: Результаты анализа.
         :param queue_name: Название очереди для отправки результата анализа.
         """
         analyze_results_json = json.dumps(analyze_results, ensure_ascii=False)

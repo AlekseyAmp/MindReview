@@ -20,8 +20,6 @@ psycopg2-binary = "^2.9.9"
 pymorphy3 = "^2.0.1"
 googletrans = "4.0.0-rc1"
 pytz = "^2024.1"
-fuzzywuzzy = "^0.18.0"
-python-levenshtein = "^0.25.0"
 
 [tool.isort]
 profile = "black"

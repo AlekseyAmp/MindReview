@@ -10,6 +10,7 @@ from src.application.review import entities
 
 
 class IAnalyzeRepository(ABC):
+
     @abstractmethod
     async def save_analyze(
         self,
@@ -23,6 +24,20 @@ class IAnalyzeRepository(ABC):
         analyze_id: int,
         user_id: int
     ) -> entities.AnalyzeReturn | None:
+        pass
+
+    @abstractmethod
+    async def get_last_analyze_by_user_id(
+        self,
+        user_id: int
+    ) -> entities.AnalyzeReturn | None:
+        pass
+
+    @abstractmethod
+    async def get_all_analyze_result_by_user_id(
+        self,
+        user_id: int
+    ) -> list[entities.AnalyzeReturn | None]:
         pass
 
 

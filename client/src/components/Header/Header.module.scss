@@ -33,7 +33,35 @@ header {
                     display: flex;
                     align-items: center;
                     flex-direction: row;
-
+                    .dropDown {
+                        position: relative;
+                        button {
+                            background: transparent;
+                            border: none;
+                            outline: none;
+                        }
+                        
+                        .dropdownContent {
+                            width: 200px;
+                            display: none;
+                            flex-direction: column;
+                            position: absolute;
+                            border-radius: 10px;
+                            background-color: $white;
+                            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+                            padding: 10px;
+                            top: 100%;
+                            pointer-events: none;
+                            z-index: 1;
+                            gap: 5px;
+                        }
+                        
+                        &:hover .dropdownContent {
+                            pointer-events: auto;
+                            z-index: 1;
+                            display: flex;
+                        }
+                    }
                     img {
                         margin-right: 5px;
                     }

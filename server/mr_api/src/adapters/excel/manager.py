@@ -11,6 +11,9 @@ from src.application.review import interfaces
 
 @dataclass
 class ExcelManager(interfaces.ExcelManager):
+    """
+    Класс для работы с Excel документами.
+    """
 
     def load_data(self, file: typing.BinaryIO) -> Worksheet:
         """

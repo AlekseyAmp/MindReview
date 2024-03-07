@@ -1,5 +1,6 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useNavigate, Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
 
 import styles from './Main.module.scss';
 import PurpleButton from '../../components/UI/Buttons/PurpleButton/PurpleButton';
@@ -7,7 +8,7 @@ import OrangeButton from '../../components/UI/Buttons/OrangeButton/OrangeButton'
 import Textarea from '../../components/UI/Inputs/Textarea/Textarea';
 import ErrorBox from '../../components/PopUps/ErrorBox/ErrorBox';
 import SuccessBox from '../../components/PopUps/SuccessBox/SuccessBox';
-import { analyze_test } from '../../services/analyze';
+import { analyzeTest } from '../../services/analyze';
 import Tooltip from '../../components/PopUps/Tooltip/Tooltip';
 
 function Main() {
@@ -15,16 +16,16 @@ function Main() {
   const [showTooltip, setShowTooltip] = useState(false);
   const [reviews, setReviews] = useState('');
   const [success, setSuccess] = useState(null);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState(null);
   const [showError, setShowError] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
 
   const scrollToTest = () => {
     const TestSection = document.getElementById('testService');
     TestSection.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleTestSubmit = (e) => {
+  const handleTestSubmit = async (e) => {
     e.preventDefault();
     const hasEmptyLines = reviews.split('\n').some(line => line.trim() === '');
     if (hasEmptyLines) {
@@ -40,11 +41,17 @@ function Main() {
       return;
     }
     const reviewsArray = reviews.split('\n').map(review => review.trim());
-    analyze_test(reviewsArray, setError, setShowError, setSuccess, setShowSuccess, navigate);
+    const flag = await analyzeTest(reviewsArray, setError, setShowError, setSuccess, setShowSuccess);
+    if (flag) {
+      navigate('/analyze/test')
+    }
   };
 
   return (
     <div className={styles.main}>
+      <Helmet>
+        <title>MindReview - Главная</title>
+      </Helmet>
       <div className={`content`}>
         <div className={styles.title}>
           <h1 className={`bold-text`} style={{ fontSize: 32 }}>
@@ -71,20 +78,20 @@ function Main() {
           <div className={`${styles.cards} mt50px`}>
             <div className={styles.card}>
               <p className={`purple-text`} style={{ fontSize: 20 }}>Загрузите отзывы</p>
-              <img src="img/howWork/1.png" alt="how-work-one" />
+              <img src="../img/howWork/1.png" alt="how-work-one" />
               <p className={`gray-text`}>
                 <p>Просто загрузите свои отзывы <br /> в систему, <br /> чтобы начать анализировать их.</p>
               </p>
             </div>
             <div className={styles.card}>
               <p className={`purple-text`} style={{ fontSize: 20 }}>Алгоритм анализа отзывов</p>
-              <img src="img/howWork/2.png" alt="how-work-two" />
+              <img src="../img/howWork/2.png" alt="how-work-two" />
               <p className={`gray-text`}>Наш алгоритм анализирует <br /> каждый отзыв, <br /> понимая мнение ваших клиентов.</p>
             </div>
             <div className={styles.card}>
               <p className={`purple-text`} style={{ fontSize: 20 }}>Визуализация данных <br />
                 и аналитика</p>
-              <img src="img/howWork/3.png" alt="how-work-three" />
+              <img src="../img/howWork/3.png" alt="how-work-three" />
               <p className={`gray-text`}>Получайте наглядное <br /> представление о данных с помощью  <br /> наших инструментов визуализации.</p>
             </div>
           </div>
@@ -107,7 +114,7 @@ function Main() {
         <div className={styles.test} id='testService'>
           <h2 className={`bold-text`}>Протестируйте сервис</h2>
           <div className={styles.content}>
-            <img src="img/test.png" alt="testService" />
+            <img src="../img/test.png" alt="testService" />
             <div className={styles.input}>
               <div className={styles.label}>
                 <span className={`gray-text`}>Введите один или несколько отзывов для проверки качества сервиса.</span>

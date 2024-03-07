@@ -1,8 +1,8 @@
 @import './variables.scss';
 
 
-.body {
-    background-color: $white;
+body {
+    background-color: #fefefe;
 }
 
 .container {
@@ -22,4 +22,13 @@
 
 .mt50px {
     margin-top: 50px;
+}
+
+.Toastify__progress-bar {
+    background-color: $white;
+}
+
+.Toastify__toast--success {
+    background-color: $white;
+    color: $white;
 }

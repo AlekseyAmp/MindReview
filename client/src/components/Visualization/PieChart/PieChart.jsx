@@ -26,7 +26,7 @@ function PieChart({ data }) {
 
     // Опции для графика
     const options = {
-        title: `Круговая диаграма настроений (${totalSentiments})`,
+        title: `Круговая диаграмма настроений (${totalSentiments})`,
         titleTextStyle: {
             color: "#221F1F",
             fontName: "Mulish, sans-serif",

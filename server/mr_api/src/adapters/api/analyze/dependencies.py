@@ -12,7 +12,10 @@ from src.adapters.database.sa_session import get_session
 from src.adapters.excel.manager import ExcelManager
 from src.adapters.notify.websocket import WebSocketManager
 from src.adapters.rpc import AnalyzeConsumer, RabbitMQManager, ReviewProducer
-from src.application.review.services import ReviewProcessingService
+from src.application.review.services import (
+    ResultAnalyzeService,
+    ReviewProcessingService,
+)
 
 
 def get_analyze_repo(
@@ -67,5 +70,17 @@ def get_review_processing_service(
         review_producer,
         analyze_consumer,
         websocket_manager,
+        excel_manager
+    )
+
+
+def get_result_analyze_service(
+    analyze_repo: AnalyzeRepository = Depends(get_analyze_repo),
+    user_repo: UserRepository = Depends(get_user_repo),
+    excel_manager: ExcelManager = Depends(get_excel_manager)
+) -> ResultAnalyzeService:
+    return ResultAnalyzeService(
+        analyze_repo,
+        user_repo,
         excel_manager
     )

@@ -1,7 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 
 import { access_token } from '../../constants/token';
+import { decodeJWT } from '../../utils/token';
+import { downloadAnalyzeResult, getAnalyzeById, getLastAnalyze } from '../../services/analyze';
+import { getSentimentInfo } from '../../utils/review';
 
 import styles from './Analyze.module.scss';
 
@@ -11,48 +15,69 @@ import PieChart from '../../components/Visualization/PieChart/PieChart';
 import GeoChart from '../../components/Visualization/GeoChart/GeoChart';
 import BarChart from '../../components/Visualization/BarChart/BarChart';
 import PurpleButton from '../../components/UI/Buttons/PurpleButton/PurpleButton';
+import ErrorBox from '../../components/PopUps/ErrorBox/ErrorBox';
+import SuccessBox from '../../components/PopUps/SuccessBox/SuccessBox';
+import AnalyzePreload from '../AnalyzePreload/AnalyzePreload';
+
 
 function Analyze() {
+  const navigate = useNavigate()
   const isAuthorized = !!access_token;
-  const [analyzeData, setAnalyzeData] = useState(null);
+  const token = access_token
+  const [title, setTitle] = useState('')
+
+  const [analyzeData, setAnalyzeData] = useState(null)
   const [filteredEntries, setFilteredEntries] = useState(null);
   const [selectedSentiments, setSelectedSentiments] = useState([]);
   const [selectedKeywords, setSelectedKeywords] = useState([]);
   const [selectedLocations, setSelectedLocations] = useState([]);
+
   const [showMoreKeywords, setShowMoreKeywords] = useState(false);
   const [showMoreLocations, setShowMoreLocations] = useState(false);
 
+  const [success, setSuccess] = useState(null);
+  const [showSuccess, setShowSuccess] = useState(false);
+  const [error, setError] = useState(null);
+  const [showError, setShowError] = useState(false);
+
+  const [showPreload, setShowPreload] = useState(false);
+
+  const { analyze_id } = useParams();
+
   useEffect(() => {
-    const data = localStorage.getItem('lastTestAnalyzeData');
-    if (data) {
-      setAnalyzeData(JSON.parse(data));
-    }
-  }, []);
-
-  const filterBySentiment = (sentiment) => {
-    const index = selectedSentiments.indexOf(sentiment);
-    if (index === -1) {
-      setSelectedSentiments([...selectedSentiments, sentiment]);
-    } else {
-      setSelectedSentiments(selectedSentiments.filter((item) => item !== sentiment));
-    }
-  }
-
-  const filterByKeyword = (keyword) => {
-    if (selectedKeywords.includes(keyword)) {
-      setSelectedKeywords(selectedKeywords.filter((item) => item !== keyword));
-    } else {
-      setSelectedKeywords([...selectedKeywords, keyword]);
-    }
-  }
-
-  const filterByLocation = (location) => {
-    if (selectedLocations.includes(location)) {
-      setSelectedLocations(selectedLocations.filter((item) => item !== location));
-    } else {
-      setSelectedLocations([...selectedLocations, location]);
-    }
-  }
+    const fetchData = async () => {
+      try {
+        if (analyze_id == null) {
+          setShowPreload(true);
+        } else if (analyze_id == "test") {
+          const testData = localStorage.getItem('testAnalyzeData');
+          setAnalyzeData(JSON.parse(testData));
+          setTitle("Краткий результат анализа тестовых отзывов");
+          setShowPreload(false);
+        } else if (analyze_id == "last") {
+          const analyzeData = await getLastAnalyze();
+          setAnalyzeData(analyzeData);
+          setTitle("Краткий результат последнего анализа");
+          setShowPreload(false);
+        } else if (analyze_id == "preload") {
+          setShowPreload(true);
+        } else {
+          const analyzeData = await getAnalyzeById(analyze_id);
+          setTitle("Краткий результат анализа");
+          setAnalyzeData(analyzeData);
+          setShowPreload(false);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    fetchData();
+    return () => {
+      if (analyze_id === "test") {
+        localStorage.removeItem('testAnalyzeData');
+      }
+    };
+  }, [analyze_id]);
 
   useEffect(() => {
     if (analyzeData) {
@@ -80,79 +105,175 @@ function Analyze() {
     }
   }, [selectedSentiments, selectedKeywords, selectedLocations, analyzeData]);
 
+  const mostPopularSentiment = analyzeData ? Object.keys(analyzeData.full_analyze.sentiments_data.sentiments).reduce((maxSentiment, currentSentiment) => (
+    analyzeData.full_analyze.sentiments_data.sentiments[currentSentiment].count > analyzeData.full_analyze.sentiments_data.sentiments[maxSentiment].count ? currentSentiment : maxSentiment
+  ), Object.keys(analyzeData.full_analyze.sentiments_data.sentiments)[0]) : null;
+
+  const topKeywords = analyzeData ? Object.keys(analyzeData.full_analyze.keywords_cloud || {}).sort((a, b) => analyzeData.full_analyze.keywords_cloud[b] - analyzeData.full_analyze.keywords_cloud[a]).slice(0, 5) : [];
+
+  const topCities = analyzeData ? Object.keys(analyzeData.full_analyze.geographical_map || {}).sort((a, b) => a.localeCompare(b)).slice(0, 5) : [];
+
+  const filterBySentiment = (sentiment) => {
+    const index = selectedSentiments.indexOf(sentiment);
+    if (index === -1) {
+      setSelectedSentiments([...selectedSentiments, sentiment]);
+    } else {
+      setSelectedSentiments(selectedSentiments.filter((item) => item !== sentiment));
+    }
+  }
+
+  const filterByKeyword = (keyword) => {
+    if (selectedKeywords.includes(keyword)) {
+      setSelectedKeywords(selectedKeywords.filter((item) => item !== keyword));
+    } else {
+      setSelectedKeywords([...selectedKeywords, keyword]);
+    }
+  }
+
+  const filterByLocation = (location) => {
+    if (selectedLocations.includes(location)) {
+      setSelectedLocations(selectedLocations.filter((item) => item !== location));
+    } else {
+      setSelectedLocations([...selectedLocations, location]);
+    }
+  }
+
+  const handleDownloadSubmit = (e) => {
+    e.preventDefault();
+
+    const decode = decodeJWT(token)
+    if (decode.header.is_premium === null || decode.header.is_premium === false) {
+      const errorMessage = "Нужна подписка \"Премиум\", чтобы скачать результат анализа.";
+      setError(errorMessage);
+      setShowSuccess(false);
+      setShowError(true);
+      setTimeout(() => {
+        setShowError(false);
+        setError(null);
+      }, 2500);
+      return;
+    } else if (analyzeData.source_type === "test") {
+      const errorMessage = "Результат анализа тестовых отзывов скачивать нельзя."
+      setError(errorMessage);
+      setShowSuccess(false);
+      setShowError(true);
+      setTimeout(() => {
+        setShowError(false);
+        setError(null);
+      }, 2500);
+      return;
+    }
+
+    downloadAnalyzeResult(analyzeData.id, analyzeData.dt, setError, setShowError, setSuccess, setShowSuccess);
+
+  }
+
+  const handleBackSubmit = () => {
+    navigate('/analyze/preload')
+  }
+
+  const sentimentInfo = getSentimentInfo(mostPopularSentiment);
+
+  if (!isAuthorized && !analyzeData) {
+    return (
+      <div className={styles.notAuth}>
+        <div className={styles.notAuthData}>
+          <h3 className={`${styles.title} dark-text`}>
+            <Link className={`purple-text`} to="/login">
+              Войдите {' '}
+            </Link>{' '}
+            или{' '}
+            <Link className={`purple-text`} to="/register">
+              зарегистрируйтесь
+            </Link>
+          </h3>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.analyze}>
-      {analyzeData && (
+      {showPreload && isAuthorized && <AnalyzePreload />}
+      <Helmet>
+        <title>MindReview - Анализ отзывов</title>
+      </Helmet>
+      {analyzeData && !showPreload && (
         <>
+          {isAuthorized && (
+            <div className={styles.backLoading}>
+              <p className={`link-text`} onClick={handleBackSubmit}>◄ Вернуться к способам загрузки</p>
+            </div>
+          )}
           <div className={styles.shortAnalyzeResults}>
-            <h3 className={`bold-text`}>Краткий результат анализа</h3>
-            <table className={styles.shortAnalyzeTable}>
-              <tbody>
-                <tr>
-                  <td className={`dark-text`}>Дата проведения анализа</td>
-                  <td className={`dark-text`}>{analyzeData.dt}</td>
-                </tr>
-                <tr>
-                  <td className={`dark-text`}>Источник загрузки</td>
-                  <td className={`dark-text`}>{analyzeData.source_type}</td>
-                </tr>
-                <tr>
-                  <td className={`dark-text`}>Ссылка на источник</td>
-                  <td className={`dark-text`}>{analyzeData.source_url ? analyzeData.source_url : "Нет"}</td>
-                </tr>
-                <tr>
-                  <td className={`dark-text`}>Количество отзывов</td>
-                  <td className={`dark-text`}>{analyzeData.entries_analyze.length}</td>
-                </tr>
-                <tr>
-                  <td className={`dark-text`}>Наиболее популярное настроение</td>
-                  <td className={`dark-text`}>
-                    {Object.keys(analyzeData.full_analyze.sentiments_data.sentiments).reduce((maxSentiment, currentSentiment) => (
-                      analyzeData.full_analyze.sentiments_data.sentiments[currentSentiment].count > analyzeData.full_analyze.sentiments_data.sentiments[maxSentiment].count ? currentSentiment : maxSentiment
-                    ), Object.keys(analyzeData.full_analyze.sentiments_data.sentiments)[0])}{" "}
-                    ({analyzeData.full_analyze.sentiments_data.sentiments[Object.keys(analyzeData.full_analyze.sentiments_data.sentiments).reduce((maxSentiment, currentSentiment) => (
-                      analyzeData.full_analyze.sentiments_data.sentiments[currentSentiment].count > analyzeData.full_analyze.sentiments_data.sentiments[maxSentiment].count ? currentSentiment : maxSentiment
-                    ), Object.keys(analyzeData.full_analyze.sentiments_data.sentiments)[0])].percentage}%)
-                  </td>
-                </tr>
-                <tr>
-                  <td className={`dark-text`}>Топ 5 ключевых слов</td>
-                  <td>
-                    <ul>
-                      {analyzeData.full_analyze.keywords_cloud &&
-                        Object.keys(analyzeData.full_analyze.keywords_cloud)
-                          .sort((a, b) => analyzeData.full_analyze.keywords_cloud[b] - analyzeData.full_analyze.keywords_cloud[a])
-                          .slice(0, 5)
-                          .map((keyword, index) => (
-                            <li className={`dark-text`} key={index}>{keyword}({analyzeData.full_analyze.keywords_cloud[keyword]})</li>
-                          ))}
-                    </ul>
-                  </td>
-                </tr>
-                <tr>
-                  <td className={`dark-text`}>Топ 5 городов</td>
-                  <td>
-                    <ul>
-                      {analyzeData.full_analyze.geographical_map &&
-                        Object.keys(analyzeData.full_analyze.geographical_map)
-                          .sort((a, b) => a.localeCompare(b))
-                          .slice(0, 5)
-                          .map((city, index) => (
-                            <li className={`dark-text`} key={index}>{city}({analyzeData.full_analyze.geographical_map[city]})</li>
-                          ))}
-                    </ul>
-
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <h3 className={`bold-text`}>{title}</h3>
+            <div className={styles.shortAnalyzeData}>
+              <div className={styles.row}>
+                <div className={styles.rowBlock}>
+                  <div className={`${styles.label} dark-text`}>Номер анализа: {' '}
+                    {analyzeData.id ? (
+                      <span className={`dark-text`}>{analyzeData.id}</span>
+                    ) : (
+                      <span className={`dark-text`}> Нет</span>
+                    )}
+                  </div>
+                </div>
+                <div className={styles.rowBlock}>
+                  <div className={`${styles.label} dark-text`}>Дата проведения анализа: <span className={`dark-text`}>{analyzeData.dt}</span></div>
+                </div>
+                <div className={styles.rowBlock}>
+                  <div className={`${styles.label} dark-text`}>Источник загрузки: <span className={`purple-text`}>{analyzeData.source_type}</span></div>
+                </div>
+                <div className={styles.rowBlock}>
+                  <div className={`${styles.label} dark-text`} style={{ maxWidth: 370, wordBreak: 'break-all' }}>Ссылка на источник: <span className={`gray-text`}>{analyzeData.source_url ? analyzeData.source_url : "Нет"}</span></div>
+                </div>
+              </div>
+              <div className={styles.row}>
+                <div className={styles.rowBlock}>
+                  <div className={`${styles.label} dark-text`}>Количество отзывов: <span className={`dark-text`}>{analyzeData.entries_analyze.length}</span></div>
+                </div>
+                <div className={styles.rowBlock}>
+                  <div className={`${styles.label} dark-text`}>Наиболее популярное настроение:</div>
+                  <span className={`${styles.sentimentBlock} white-text`} style={
+                    {
+                      color: sentimentInfo.color,
+                    }
+                  }>
+                    {mostPopularSentiment} ({analyzeData.full_analyze.sentiments_data.sentiments[mostPopularSentiment].percentage}%)
+                  </span>
+                </div>
+              </div>
+              <div className={styles.row}>
+                <div className={`${styles.label} dark-text`}>Топ 5 ключевых слов:</div>
+                <div>
+                  <ul>
+                    {topKeywords.map((keyword, index) => (
+                      <li className={`gray-text`} key={index}>{keyword}({analyzeData.full_analyze.keywords_cloud[keyword]})</li>
+                    ))}
+                    {topKeywords.length === 0 && <li className={`gray-text`}>Нет</li>}
+                  </ul>
+                </div>
+              </div>
+              <div className={styles.row}>
+                <div className={`${styles.label} dark-text`}>Топ 5 городов:</div>
+                <div>
+                  <ul>
+                    {topCities.map((city, index) => (
+                      <li className={`gray-text`} key={index}>{city}({analyzeData.full_analyze.geographical_map[city]})</li>
+                    ))}
+                    {topCities.length === 0 && <li className={`gray-text`}>Нет данных</li>}
+                  </ul>
+                </div>
+              </div>
+            </div>
           </div>
           {isAuthorized ? (
             <>
               <div className={styles.downloadAnalyze}>
-                <div className={'center mt35px'}>
+                <div className={'center mt50px'}>
                   <PurpleButton
                     title={"Скачать результат анализа"}
+                    onClick={handleDownloadSubmit}
                   />
                 </div>
               </div>
@@ -164,11 +285,10 @@ function Analyze() {
                     <GeoChart data={analyzeData.full_analyze.geographical_map} />
                   </div>
                   <div className={styles.topRight}>
-                    <WordCloud keywords={analyzeData.full_analyze.keywords_cloud} />
+                    <WordCloud title={"Облако ключевых слов"} keywords={analyzeData.full_analyze.keywords_cloud} />
                     <PieChart data={analyzeData.full_analyze.sentiments_data} />
                   </div>
                 </div>
-                {/* <div className={styles.bottom}></div> */}
               </div>
             </>
           ) : (
@@ -196,17 +316,16 @@ function Analyze() {
               <div className={styles.analyzeFilters}>
                 <div className={styles.sentimentFilters}>
                   <h3 className={`${styles.filterSubtitle} bold-text`}>По настроениям:</h3>
-                  {/* Sentiment filters */}
                   <div className={styles.filterOptions}>
-                  <label className={`dark-text`}>
-                    <input type="checkbox" value="Позитивный" checked={selectedSentiments.includes("Позитивный")} onChange={() => filterBySentiment("Позитивный")} /> Позитивный
-                  </label>
-                  <label className={`dark-text`}>
-                    <input type="checkbox" value="Нейтральный" checked={selectedSentiments.includes("Нейтральный")} onChange={() => filterBySentiment("Нейтральный")} /> Нейтральный
-                  </label>
-                  <label className={`dark-text`}>
-                    <input type="checkbox" value="Негативный" checked={selectedSentiments.includes("Негативный")} onChange={() => filterBySentiment("Негативный")} /> Негативный
-                  </label>
+                    <label className={`dark-text`}>
+                      <input type="checkbox" value="Позитивный" checked={selectedSentiments.includes("Позитивный")} onChange={() => filterBySentiment("Позитивный")} /> Позитивный
+                    </label>
+                    <label className={`dark-text`}>
+                      <input type="checkbox" value="Нейтральный" checked={selectedSentiments.includes("Нейтральный")} onChange={() => filterBySentiment("Нейтральный")} /> Нейтральный
+                    </label>
+                    <label className={`dark-text`}>
+                      <input type="checkbox" value="Негативный" checked={selectedSentiments.includes("Негативный")} onChange={() => filterBySentiment("Негативный")} /> Негативный
+                    </label>
                   </div>
                 </div>
                 <div className={styles.keywordFilters}>
@@ -228,7 +347,6 @@ function Analyze() {
                           </label>
                         ))}
                   </div>
-                  {/* Show more/less button */}
                   {analyzeData && analyzeData.full_analyze.keywords_cloud && Object.keys(analyzeData.full_analyze.keywords_cloud).length > 15 && (
                     <h3 className={`${styles.title} gray-text`} onClick={() => setShowMoreKeywords(!showMoreKeywords)}>
                       {showMoreKeywords ? 'Скрыть ▲' : 'Показать ещё ▼'}
@@ -254,7 +372,6 @@ function Analyze() {
                           </label>
                         ))}
                   </div>
-                  {/* Show more/less button */}
                   {analyzeData && analyzeData.full_analyze.geographical_map && Object.keys(analyzeData.full_analyze.geographical_map).length > 15 && (
                     <h3 className={`${styles.title} gray-text`} onClick={() => setShowMoreLocations(!showMoreLocations)}>
                       {showMoreLocations ? 'Скрыть ▲' : 'Показать ещё ▼'}
@@ -266,7 +383,13 @@ function Analyze() {
           </div>
         </>
       )}
-      <div className={styles.notData}>{!analyzeData && <h3 className={`bold-text`}>Нет данных для отображения.</h3>}</div>
+      {!analyzeData && !showPreload && isAuthorized && (
+        <div className={styles.notData}>
+          <h3 className={`bold-text`}>Нет данных для отображения.</h3>
+        </div>
+      )}
+      {showError && <ErrorBox error={error} />}
+      {showSuccess && <SuccessBox success={success} />}
     </div>
   );
 }

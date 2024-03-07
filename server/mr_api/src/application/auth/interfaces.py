@@ -12,6 +12,7 @@ class ITokenManager(ABC):
     def create_tokens(
         self,
         user_id: str,
+        headers: dict[str, str | bool],
         response: Response,
         authorize: AuthJWT
     ) -> tuple[str, str]:

@@ -35,6 +35,17 @@ def datetime_to_json(dt: datetime) -> str:
 
     :return: Строка в формате JSON.
     """
+    return dt.strftime('%d.%m.%Y %H:%M:%S')
+
+
+def datetime_to_excel(dt: datetime) -> str:
+    """
+    Преобразует объект даты и времени в строку в формате JSON.
+
+    :param dt: Объект даты и времени.
+
+    :return: Строка в формате JSON.
+    """
     return dt.strftime('%Y-%m-%d %H:%M:%S')
 
 

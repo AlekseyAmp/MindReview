@@ -2,6 +2,8 @@ from dataclasses import dataclass
 
 from fastapi import HTTPException
 
+from src.application.constants import PremiumSubscriptionRequiredTypes
+
 
 # Различные ошибки, связанные с валидацией данных
 @dataclass
@@ -28,15 +30,24 @@ class FileEmptyException(HTTPException):
 
 @dataclass
 class PremiumSubscriptionRequiredException(HTTPException):
-    allowed_num_rows: int
+    type: str
+    allowed_num_rows: int | None = None
     status_code: int = 403
     detail: str | None = None
 
     def __post_init__(self) -> None:
-        self.detail = (
-            "Вам нужен премиум аккаунт, "
-            f"чтобы загрузить больше {self.allowed_num_rows} строк отзывов."
-        )
+        if self.type == PremiumSubscriptionRequiredTypes.MAX_ROWS.value:
+            self.detail = (
+                "Нужна \"Премиум\" подписка аккаунт, "
+                f"чтобы загрузить более {self.allowed_num_rows} строк отзывов."
+            )
+        elif self.type == PremiumSubscriptionRequiredTypes.DOWNLOAD.value:
+            self.detail = (
+                "Нужна \"Премиум\" подписка аккаунт, "
+                "чтобы скачать результат анализа."
+            )
+        else:
+            return None
 
 
 # Ошибки, связанные с пользователем

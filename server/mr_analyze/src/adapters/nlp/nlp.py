@@ -6,9 +6,9 @@ from pymorphy3 import MorphAnalyzer
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
 from src.application.analyze import interfaces
+from src.application.collection import entities
 from src.application.constants import GENDERS, PartOfSpeech, SentimentCategory
 from src.application.utils import round_float
-from src.application.collection import entities
 
 
 @dataclass
@@ -291,7 +291,7 @@ class NLPService(interfaces.INLPService):
 
         # Задаем шаблон регулярного выражения
         # для поиска упоминаний года в тексте отзыва
-        year_pattern = r'\b(\d{1,10})\s*(?:год(?:а|ов|у|ом)?|лет|годи(?:к(?:а|ов|у|ом)?)?)\b'
+        year_pattern = r'\b(\d{1,10})\s*(?:год(?:а|ов|у|ом)?|лет|годи(?:к(?:а|ов|у|ом)?)?)\b' # noqa
 
         # Перебираем каждый отзыв из предоставленного списка
         for review in reviews:
@@ -346,8 +346,9 @@ class NLPService(interfaces.INLPService):
                 if (
                     (parsed_token.normal_form not in cities_stopwords) and
                     (
-                        parsed_token.tag.POS == PartOfSpeech.NOUN.value or \
-                            PartOfSpeech.UNKNOWN.value in parsed_token.tag
+                        parsed_token.tag.POS
+                        == PartOfSpeech.NOUN.value
+                        or PartOfSpeech.UNKNOWN.value in parsed_token.tag
                     )
                 ):
                     nouns.add(parsed_token.normal_form)

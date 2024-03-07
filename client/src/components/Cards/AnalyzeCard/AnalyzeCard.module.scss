@@ -1,6 +1,7 @@
 @import '../../../assets/variables.scss';
 
 .card {
+    transition: 0.2s;
     width: 750px;
     display: flex;
     justify-content: space-between;

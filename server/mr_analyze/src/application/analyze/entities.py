@@ -17,8 +17,8 @@ class EntryAnalyze:
     sentiment: str
     keywords: list[str | None]
     other_info: OtherInfo
-    
-    
+
+
 @dataclass
 class FullAnalyze:
     keywords_cloud: dict[str, int] | None

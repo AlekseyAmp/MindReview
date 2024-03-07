@@ -1,42 +1,68 @@
 @import '../../assets/variables.scss';
 
 .analyze {
-    margin-top: 150px;
+    margin-top: 200px;
     display: flex;
     flex-direction: column;
 
-    .shortAnalyzeResults {
-        margin-bottom: 20px;
+    .backLoading {
+        margin-bottom: 60px;
 
+        p {
+            color: $lettuce;
+            display: inline-block;
+        }
+
+        p:hover {
+            color: $green;
+        }
+    }
+
+    .shortAnalyzeResults {
         h3 {
-            text-align: center;
             font-size: 20px;
         }
 
-        .shortAnalyzeTable {
-            margin-top: 25px;
-            border-collapse: collapse;
-            display: flex;
-            justify-content: center;
-            
-            td {
-                border: 1px solid #ddd;
-                padding: 8px;
+        margin-top: 45px;
 
-                &:first-child {
+        .shortAnalyzeData {
+            margin-top: 20px;
+            display: flex;
+            flex-direction: row;
+            gap: 25px;
+
+            .row {
+                padding: 20px;
+                border-radius: 10px;
+                background-color: $white;
+                box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+                display: flex;
+                flex-direction: column;
+                gap: 10px;
+                max-width: 500px;
+
+
+                .rowBlock {
+                    display: flex;
+                    flex-direction: column;
+                    gap: 3px;
+                }
+
+                .label {
                     font-weight: bold;
                 }
-            }
 
-            tr:nth-child(even) {
-                background-color: #f2f2f2ba;
+                transition: 0.2s;
             }
         }
     }
 
     .visualization {
+        margin-top: 75px;
         display: flex;
         flex-direction: column;
+        justify-content: center;
+        max-width: 1920px;
 
         .visualizationTitle {
             font-size: 20px;
@@ -69,7 +95,7 @@
 
     .analyzeBlock {
         margin-top: 65px;
-        
+
         .analyzeContent {
             gap: 100px;
             display: flex;
@@ -80,6 +106,7 @@
             display: flex;
             flex-direction: column;
             gap: 30px;
+
             input[type="checkbox"] {
                 width: 1.3em;
                 height: 1.3em;
@@ -91,51 +118,58 @@
                 -webkit-appearance: none;
                 outline: none;
                 cursor: pointer;
-              }
-              
-              /* Стиль при фокусе */
-              input[type="checkbox"]:focus {
+            }
+
+            /* Стиль при фокусе */
+            input[type="checkbox"]:focus {
                 border: 1px solid $purple;
-              }
-              
-              /* Стили для псевдоэлемента, отображающего галочку */
-              input[type="checkbox"]:checked::after {
+            }
+
+            /* Стили для псевдоэлемента, отображающего галочку */
+            input[type="checkbox"]:checked::after {
                 content: '✓';
-                font-size: 1em; /* размер галочки */
-                color: $purple; /* цвет галочки */
+                font-size: 1em;
+                /* размер галочки */
+                color: $purple;
+                /* цвет галочки */
                 position: relative;
                 left: 2px;
                 top: -2px;
-              }
-              
-              /* Изменение цвета границы чекбокса при отмеченном состоянии */
-              input[type="checkbox"]:checked {
+            }
+
+            /* Изменение цвета границы чекбокса при отмеченном состоянии */
+            input[type="checkbox"]:checked {
                 border-color: $purple;
-              }
-              
-              label {
+            }
+
+            label {
                 display: flex;
                 flex-direction: row;
                 align-items: center;
                 gap: 5px;
             }
+
             .filterSubtitle {
                 font-size: 17px;
             }
 
-            .keywordFilters, .locationFilters, .sentimentFilters {
+            .keywordFilters,
+            .locationFilters,
+            .sentimentFilters {
                 .filterOptions {
                     margin-top: 15px;
                     display: grid;
                     grid-template-columns: repeat(3, 1fr);
                     grid-gap: 15px;
-                  }
+                }
+
                 .title {
                     font-weight: bold;
                     transition: 0.3s;
                     cursor: pointer;
                     margin-top: 15px;
                 }
+
                 .title:hover {
                     color: $orange
                 }
@@ -162,6 +196,27 @@
             text-align: center;
             margin-bottom: 30px;
             font-size: 20px;
+        }
+    }
+}
+.notAuth {
+    margin-top: 200px;
+    h3 {
+        text-align: center;
+        margin-bottom: 30px;
+        font-size: 20px;
+    }
+
+    .notAuthData {
+        h3 {
+            a {
+                font-size: 20px;
+                transition: 0.2s;
+            }
+
+            a:hover {
+                color: $orange
+            }
         }
     }
 }

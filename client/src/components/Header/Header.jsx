@@ -1,61 +1,53 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 
 import { access_token } from '../../constants/token';
-// import { getUserInfo } from '../../services/user';
-
-import styles from './Header.module.scss';
-
-// import Logout from '../Buttons/Logout/Logout';
 import PurpleButton from '../UI/Buttons/PurpleButton/PurpleButton';
 import OutlineButton from '../UI/Buttons/OutlineButton/OutlineButton';
 import Logout from '../Logout/Logout';
+import styles from './Header.module.scss';
 
 function Header() {
     const isAuthorized = !!access_token;
-    // const [name, setName] = useState('');
-    // const [surname, setSurname] = useState('');
-    // const [login, setLogin] = useState('');
-    // const [role, setRole] = useState('');
-
-    // useEffect(() => {
-    //     if (isAuthorized) {
-    //         getUserInfo()
-    //             .then((data) => {
-    //                 setName(data.name);
-    //                 setSurname(data.surname);
-    //                 setLogin(data.login);
-    //                 setRole(data.role);
-    //             })
-    //             .catch((error) => console.log(error));
-    //     }
-    // }, [isAuthorized]);
-
+    const [analyzeDropdownOpen, setAnalyzeDropdownOpen] = useState(false);
+    
     return (
         <header>
-
             <div className={`${styles.header} container`}>
                 <div className={styles.logo}>
                     <Link to='/'>
-                        <img src="img/logo.svg" alt="Logo" />
+                        <img src="../img/logo.svg" alt="Logo" />
                     </Link>
                 </div>
                 <div className={styles.menu}>
                     <ul>
                         <li>
-                            <img src="img/icons/diagram.svg" alt="analyze" />
-                            <Link to='/analyze' className={`link-text`}>Анализ</Link>
+                            <img src="../img/icons/diagram.svg" alt="analyze" />
+                            <div className={styles.dropDown} 
+                                 onMouseEnter={() => setAnalyzeDropdownOpen(true)}
+                                 onMouseLeave={() => setAnalyzeDropdownOpen(false)}>
+                                <div className={styles.customDropdown}>
+                                    <button>
+                                        <a className={`link-text`}>Анализ {!analyzeDropdownOpen ? '▼' : '▲'}</a>
+                                    </button>
+                                    {analyzeDropdownOpen && (
+                                        <div className={styles.dropdownContent}>
+                                            <Link className={`link-text`} to='/analyze/preload'>Загрузка отзывов</Link>
+                                            <Link className={`link-text`} to='/analyze/last'>Последний результат анализа</Link>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
                         </li>
                         <li>
-                            <img src="img/icons/folder.svg" alt="archive" />
+                            <img src="../img/icons/folder.svg" alt="archive" />
                             <Link to='/archive' className={`link-text`}>Архив</Link>
                         </li>
                         <li>
-                            <img src="img/icons/issue.svg" alt="feedback" />
+                            <img src="../img/icons/issue.svg" alt="feedback" />
                             <Link to='/feedback' className={`link-text`}>Обратная связь</Link>
                         </li>
                     </ul>
-
                 </div>
                 <div className={styles.right}>
                     <ul>
@@ -99,9 +91,7 @@ function Header() {
                     </ul>
                 </div>
             </div>
-
         </header>
-
     );
 }
 

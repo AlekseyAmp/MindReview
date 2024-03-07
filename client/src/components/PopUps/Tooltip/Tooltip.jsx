@@ -4,7 +4,7 @@ import styles from './Tooltip.module.scss';
 function Tooltip({ setShowTooltip, showTooltip, title, text }) {
     return (
         <div className={styles.tooltip} onMouseEnter={() => setShowTooltip(true)} onMouseLeave={() => setShowTooltip(false)}>
-            <img src="img/icons/purple-issue.svg" alt="issue" />
+            <img src="../img/icons/purple-issue.svg" alt="issue" />
             {showTooltip && (
                 <div className={styles.tooltipContent}>
                     <p className={`dark-text`}>

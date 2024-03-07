@@ -2,45 +2,61 @@ import axios from '../utils/axios';
 import Cookies from 'js-cookie';
 
 
-export async function register_user(first_name, last_name, email, password, setError, setShowError, navigate) {
+export async function register_user(first_name, last_name, email, password, setError, setShowError, setSuccess, setShowSuccess, navigate) {
     try {
       const response = await axios.post('auth/register', { first_name, last_name, email, password });
   
       if (response.data) {
         Cookies.set('access_token', response.data.access_token);
         Cookies.set('refresh_token', response.data.refresh_token);
-        navigate('/')
-        window.location.reload();
+        setSuccess("Добро пожаловать!");
+        setShowSuccess(true);
+        setTimeout(() => {
+            setShowSuccess(false);
+            setSuccess(null);
+            navigate('/');
+            window.location.reload();
+        }, 500);
       }
     } catch (error) {
       const errorMessage = error.response.data.detail;
       setError(errorMessage);
       setShowError(true);
+      setSuccess(null);
+      setShowSuccess(false)
       setTimeout(() => {
-        setShowError(false);
-        setError(null);
+          setShowError(false);
+          setError(null);
       }, 2500);
     }
 }
 
 
-export async function login_user(email, password, setError, setShowError, navigate) {
+export async function login_user(email, password, setError, setShowError, setSuccess, setShowSuccess, navigate) {
   try {
     const response = await axios.post('auth/login', { email, password });
 
     if (response.data) {
       Cookies.set('access_token', response.data.access_token);
       Cookies.set('refresh_token', response.data.refresh_token);
-      navigate('/')
-      window.location.reload();
+      setSuccess("Рады видеть вас снова!");
+      setShowSuccess(true);
+      setTimeout(() => {
+          setShowSuccess(false);
+          setSuccess(null);
+          navigate('/');
+          window.location.reload();
+      }, 500);
     }
   } catch (error) {
     const errorMessage = error.response.data.detail;
     setError(errorMessage);
     setShowError(true);
+    setSuccess(null);
+    setShowSuccess(false)
     setTimeout(() => {
-      setShowError(false);
-      setError(null);
+        setShowError(false);
+        setError(null);
     }, 2500);
   }
 }
