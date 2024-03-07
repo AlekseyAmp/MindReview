@@ -306,6 +306,19 @@ class ResultAnalyzeService:
         user_id: int,
         analyze_id: int | None = None
     ) -> schemas.AnalyzeResponse | None:
+        """
+        Получает результаты анализа
+        для указанного пользователя
+        и/или анализа по его идентификатору.
+
+        :param user_id: Идентификатор пользователя.
+        :param analyze_id: Идентификатор анализа,
+        если задан. По умолчанию None.
+
+        :return: Результаты анализа или None,
+        если анализ не найден.
+        """
+
         if analyze_id:
             analyze = await self.analyze_repo.get_analyze_by_id(
                 analyze_id,
@@ -330,6 +343,16 @@ class ResultAnalyzeService:
         self,
         user_id: int
     ) -> list[schemas.AnalyzeResponse | None]:
+        """
+        Получает все результаты анализа
+        для указанного пользователя.
+
+        :param user_id: Идентификатор пользователя.
+
+        :return: Список результатов анализа
+        или список пустых значений, если анализы не найдены.
+        """
+
         all_analyze_results = await self.analyze_repo\
             .get_all_analyze_result_by_user_id(
                 user_id
