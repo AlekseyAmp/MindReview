@@ -85,7 +85,7 @@ class IWebSocketManager(ABC):
         pass
 
 
-class ExcelManager(ABC):
+class IExcelManager(ABC):
 
     @abstractmethod
     def load_data(self, file: typing.BinaryIO) -> Worksheet:

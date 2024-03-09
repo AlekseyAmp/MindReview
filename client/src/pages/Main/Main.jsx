@@ -1,35 +1,38 @@
-import React, { useState, useEffect } from 'react'
-import { useNavigate, Link } from 'react-router-dom';
-import { Helmet } from 'react-helmet';
+import React, { useState, useEffect } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { Helmet } from "react-helmet";
 
-import styles from './Main.module.scss';
-import PurpleButton from '../../components/UI/Buttons/PurpleButton/PurpleButton';
-import OrangeButton from '../../components/UI/Buttons/OrangeButton/OrangeButton';
-import Textarea from '../../components/UI/Inputs/Textarea/Textarea';
-import ErrorBox from '../../components/PopUps/ErrorBox/ErrorBox';
-import SuccessBox from '../../components/PopUps/SuccessBox/SuccessBox';
-import { analyzeTest } from '../../services/analyze';
-import Tooltip from '../../components/PopUps/Tooltip/Tooltip';
+import styles from "./Main.module.scss";
+import PurpleButton from "../../components/UI/Buttons/PurpleButton/PurpleButton";
+import OrangeButton from "../../components/UI/Buttons/OrangeButton/OrangeButton";
+import Textarea from "../../components/UI/Inputs/Textarea/Textarea";
+import ErrorBox from "../../components/PopUps/ErrorBox/ErrorBox";
+import SuccessBox from "../../components/PopUps/SuccessBox/SuccessBox";
+import { analyzeTest } from "../../services/analyze";
+import Tooltip from "../../components/PopUps/Tooltip/Tooltip";
 
 function Main() {
   const navigate = useNavigate();
   const [showTooltip, setShowTooltip] = useState(false);
-  const [reviews, setReviews] = useState('');
+  const [reviews, setReviews] = useState("");
   const [success, setSuccess] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState(null);
   const [showError, setShowError] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const scrollToTest = () => {
-    const TestSection = document.getElementById('testService');
-    TestSection.scrollIntoView({ behavior: 'smooth' });
+    const TestSection = document.getElementById("testService");
+    TestSection.scrollIntoView({ behavior: "smooth" });
   };
 
   const handleTestSubmit = async (e) => {
     e.preventDefault();
-    const hasEmptyLines = reviews.split('\n').some(line => line.trim() === '');
+    const hasEmptyLines = reviews
+      .split("\n")
+      .some((line) => line.trim() === "");
     if (hasEmptyLines) {
-      const errorMessage = 'Пожалуйста, введите отзывы без пустых строк.';
+      const errorMessage = "Пожалуйста, введите отзывы без пустых строк.";
       setError(errorMessage);
       setShowError(true);
       setSuccess(null);
@@ -40,11 +43,19 @@ function Main() {
       }, 2500);
       return;
     }
-    const reviewsArray = reviews.split('\n').map(review => review.trim());
-    const flag = await analyzeTest(reviewsArray, setError, setShowError, setSuccess, setShowSuccess);
+    const reviewsArray = reviews.split("\n").map((review) => review.trim());
+    setIsSubmitting(true); 
+    const flag = await analyzeTest(
+      reviewsArray,
+      setError,
+      setShowError,
+      setSuccess,
+      setShowSuccess
+    );
     if (flag) {
-      navigate('/analyze/test')
+      navigate("/analyze/test");
     }
+    setIsSubmitting(false); 
   };
 
   return (
@@ -77,26 +88,40 @@ function Main() {
           <h2 className={`bold-text`}>Как работает MindReview?</h2>
           <div className={`${styles.cards} mt50px`}>
             <div className={styles.card}>
-              <p className={`purple-text`} style={{ fontSize: 20 }}>Загрузите отзывы</p>
+              <p className={`purple-text`} style={{ fontSize: 20 }}>
+                Загрузите отзывы
+              </p>
               <img src="../img/howWork/1.png" alt="how-work-one" />
               <p className={`gray-text`}>
-                <p>Просто загрузите свои отзывы <br /> в систему, <br /> чтобы начать анализировать их.</p>
+                <p>
+                  Просто загрузите свои отзывы <br /> в систему, <br /> чтобы
+                  начать анализировать их.
+                </p>
               </p>
             </div>
             <div className={styles.card}>
-              <p className={`purple-text`} style={{ fontSize: 20 }}>Алгоритм анализа отзывов</p>
+              <p className={`purple-text`} style={{ fontSize: 20 }}>
+                Алгоритм анализа отзывов
+              </p>
               <img src="../img/howWork/2.png" alt="how-work-two" />
-              <p className={`gray-text`}>Наш алгоритм анализирует <br /> каждый отзыв, <br /> понимая мнение ваших клиентов.</p>
+              <p className={`gray-text`}>
+                Наш алгоритм анализирует <br /> каждый отзыв, <br /> понимая
+                мнение ваших клиентов.
+              </p>
             </div>
             <div className={styles.card}>
-              <p className={`purple-text`} style={{ fontSize: 20 }}>Визуализация данных <br />
-                и аналитика</p>
+              <p className={`purple-text`} style={{ fontSize: 20 }}>
+                Визуализация данных <br />и аналитика
+              </p>
               <img src="../img/howWork/3.png" alt="how-work-three" />
-              <p className={`gray-text`}>Получайте наглядное <br /> представление о данных с помощью  <br /> наших инструментов визуализации.</p>
+              <p className={`gray-text`}>
+                Получайте наглядное <br /> представление о данных с помощью{" "}
+                <br /> наших инструментов визуализации.
+              </p>
             </div>
           </div>
           <div className={`center mt50px`}>
-            <Link to='/analyze'>
+            <Link to="/analyze/preload">
               <OrangeButton
                 title={"Перейти к анализу"}
                 width={300}
@@ -107,22 +132,27 @@ function Main() {
         </div>
         <div className={styles.features}>
           <h2 className={`bold-text`}>Особенности MindReview</h2>
-          <div className={styles.banner}>
-            Скоро тут будет контент
-          </div>
+          <div className={styles.banner}>Скоро тут будет контент</div>
         </div>
-        <div className={styles.test} id='testService'>
+        <div className={styles.test} id="testService">
           <h2 className={`bold-text`}>Протестируйте сервис</h2>
           <div className={styles.content}>
-            <img src="../img/test.png" alt="testService" />
+            <img src="../img/testSection/test.png" alt="testService" />
             <div className={styles.input}>
               <div className={styles.label}>
-                <span className={`gray-text`}>Введите один или несколько отзывов для проверки качества сервиса.</span>
+                <span className={`gray-text`}>
+                  Введите один или несколько отзывов для проверки качества
+                  сервиса.
+                </span>
                 <Tooltip
                   setShowTooltip={setShowTooltip}
                   showTooltip={showTooltip}
                   title={"Отзывы нужно вводить каждый на новой строке:"}
-                  text={<span>Текст1 <br /> Текст2 <br /> Текст3</span>}
+                  text={
+                    <span>
+                      Текст1 <br /> Текст2 <br /> Текст3
+                    </span>
+                  }
                 />
               </div>
               <Textarea
@@ -136,7 +166,7 @@ function Main() {
                   title={"Попробовать"}
                   width={422}
                   height={37}
-                  onClick={handleTestSubmit}
+                  onClick={isSubmitting ? undefined : handleTestSubmit}
                 />
               </div>
             </div>
@@ -146,7 +176,7 @@ function Main() {
         {showSuccess && <SuccessBox success={success} />}
       </div>
     </div>
-  )
+  );
 }
 
-export default Main
+export default Main;

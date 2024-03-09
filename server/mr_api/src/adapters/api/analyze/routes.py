@@ -28,14 +28,14 @@ router = APIRouter()
 async def websocket_endpoint(
     websocket: WebSocket,
     client_id: int,
-    websockets_manager: WebSocketManager = Depends(get_websocket_manager)
+    websocket_manager: WebSocketManager = Depends(get_websocket_manager)
 ) -> None:
-    await websockets_manager.add_websocket(client_id, websocket)
+    await websocket_manager.add_websocket(client_id, websocket)
     try:
         while True:
             await websocket.receive_text()
     except WebSocketDisconnect:
-        websockets_manager.remove_websocket(client_id)
+        websocket_manager.remove_websocket(client_id)
 
 
 @router.post(path="/test", response_model=schemas.AnalyzeResponse)
@@ -52,10 +52,10 @@ async def make_test_analyze(
 async def make_analyze_from_file(
     file: UploadFile,
     background_task: BackgroundTasks,
+    user_id: int = Depends(get_user_id),
     review_processing_service: ReviewProcessingService = Depends(
         get_review_processing_service
     ),
-    user_id: int = Depends(get_user_id)
 ) -> dict[str, str]:
 
     await review_processing_service.process_reviews_from_file_middleware(
@@ -77,10 +77,10 @@ async def make_analyze_from_file(
 )
 async def get_analyze_results_by_id(
     analyze_id: int,
+    user_id: int = Depends(get_user_id),
     result_analyze_service: ResultAnalyzeService = Depends(
         get_result_analyze_service
     ),
-    user_id: int = Depends(get_user_id)
 ) -> schemas.AnalyzeResponse:
     return await result_analyze_service.get_analyze_results(
         user_id,
@@ -110,18 +110,16 @@ async def get_all_analyze_results(
     ),
     user_id: int = Depends(get_user_id)
 ) -> list[schemas.AnalyzeResponse | None]:
-    return await result_analyze_service.get_all_analyze_results(
-        user_id
-    )
+    return await result_analyze_service.get_all_analyze_results(user_id)
 
 
 @router.get(path="/download/{analyze_id}", response_class=FileResponse)
 async def download_analyze_results(
     analyze_id: int,
+    user_id: int = Depends(get_user_id),
     result_analyze_service: ResultAnalyzeService = Depends(
         get_result_analyze_service
     ),
-    user_id: int = Depends(get_user_id)
 ) -> FileResponse:
     analyze_results = await result_analyze_service.generate_analyze_results(
         analyze_id,

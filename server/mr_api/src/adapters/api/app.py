@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from src.adapters.api.analyze import routes as AnalyzeRouter
 from src.adapters.api.auth import routes as AuthRouter
+from src.adapters.api.feedback import routes as FeedbackRouter
 
 app = FastAPI(title="MindReviewAPI", version="0.1")
 
@@ -24,4 +25,7 @@ app.add_api_websocket_route('/ws', AuthRouter.router)
 app.include_router(AuthRouter.router, tags=['auth'], prefix='/api/auth')
 app.include_router(
     AnalyzeRouter.router, tags=['analyze'], prefix='/api/analyze'
+)
+app.include_router(
+    FeedbackRouter.router, tags=['feedback'], prefix='/api/feedback'
 )

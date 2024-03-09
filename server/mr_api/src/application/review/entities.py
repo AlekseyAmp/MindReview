@@ -7,7 +7,6 @@ from src.application.constants import Status
 @dataclass
 class AnalyzeInput:
     user_id: int
-    dt: datetime
     source_type: str
     source_url: str | None
     entries_analyze: list[dict] | None

@@ -1,5 +1,5 @@
-import Cookies from 'js-cookie'
+import Cookies from "js-cookie";
 
-const access_token = Cookies.get('access_token')
+const access_token = Cookies.get("access_token");
 
 export { access_token };

@@ -12,6 +12,7 @@ class AnalyzeRepository(SABaseRepository, interfaces.IAnalyzeRepository):
     """
     Репозиторий для работы с данными анализа в базе данных.
     """
+
     async def save_analyze(
         self,
         analyze: entities.AnalyzeInput
@@ -112,7 +113,7 @@ class AnalyzeRepository(SABaseRepository, interfaces.IAnalyzeRepository):
             )
         ).order_by(table.c.dt.desc()).limit(1)
 
-        analyze = self.session.execute(query).mappings().first()
+        analyze = self.session.execute(query).mappings().one_or_none()
 
         if analyze:
             return entities.AnalyzeReturn(**analyze)
@@ -148,8 +149,8 @@ class AnalyzeRepository(SABaseRepository, interfaces.IAnalyzeRepository):
             )
         ).order_by(table.c.id.desc())
 
-        result = self.session.execute(query).mappings().all()
+        analyze_results = self.session.execute(query).mappings().all()
 
-        if result:
-            return [entities.AnalyzeReturn(**row) for row in result]
+        if analyze_results:
+            return [entities.AnalyzeReturn(**row) for row in analyze_results]
         return []

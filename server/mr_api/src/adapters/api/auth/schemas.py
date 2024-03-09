@@ -1,10 +1,10 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class AuthUserBase(BaseModel):
     first_name: str
     last_name: str
-    email: str
+    email: EmailStr
 
 
 class CreateUser(AuthUserBase):
@@ -12,7 +12,7 @@ class CreateUser(AuthUserBase):
 
 
 class LoginUser(BaseModel):
-    email: str
+    email: EmailStr
     password: str
 
 

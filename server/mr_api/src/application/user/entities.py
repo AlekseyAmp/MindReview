@@ -1,6 +1,8 @@
 from dataclasses import dataclass
 from datetime import datetime
 
+from src.application.constants import UserRole
+
 
 @dataclass
 class User:
@@ -10,10 +12,11 @@ class User:
     last_name: str
     email: str
     password: str
-    role: str
+    role: UserRole
     is_premium: bool
 
 
 @dataclass
-class UserIsPremium:
+class UserInfo:
+    role: UserRole
     is_premium: bool

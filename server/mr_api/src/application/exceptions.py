@@ -85,6 +85,12 @@ class AlreadyAuthenticatedException(HTTPException):
     status_code: int = 401
 
 
+@dataclass
+class NotAdminRoleException(HTTPException):
+    detail: str = "Нет прав администратора"
+    status_code: int = 403
+
+
 # Ошибки связанные с отзывами и анализом
 @dataclass
 class TooManyTestReviewsException(HTTPException):
@@ -111,3 +117,10 @@ class AnalyzeServiceException(HTTPException):
 class AnalyzeNotFoundException(HTTPException):
     status_code: int = 404
     detail: str = "Результат анализа не найден."
+
+
+# Ошибки связанные с обратной связью
+@dataclass
+class FeedbackNotFound(HTTPException):
+    status_code: int = 404
+    detail: str = "Запись обратной связи не найдена."

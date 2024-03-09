@@ -22,8 +22,8 @@ class IUserRepository(ABC):
         pass
 
     @abstractmethod
-    async def get_user_premium_by_id(
+    async def get_user_info_by_id(
         self,
         user_id: int
-    ) -> entities.UserIsPremium | None:
+    ) -> entities.UserInfo | None:
         pass

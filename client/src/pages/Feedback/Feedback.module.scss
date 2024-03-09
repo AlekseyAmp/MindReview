@@ -1,0 +1,22 @@
+.feedback {
+    margin-top: 250px;
+    .feedbackContent {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        img {
+            width: 544px;
+            height: 420px;
+        }
+    }
+    .inputBox {
+        input {
+            display: flex;
+            margin-top: 10px;
+        }
+        
+        display: flex;
+        flex-direction: column;
+        gap: 30px;
+    }
+}

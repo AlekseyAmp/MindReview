@@ -1,10 +1,9 @@
-import logging
 from dataclasses import asdict, dataclass
 
 from fastapi import UploadFile
 
 from src.adapters.api.analyze import schemas
-from src.adapters.database.settings import settings as db_settings
+from src.adapters.logger.settings import logger
 from src.adapters.rpc.settings import settings as io_settings
 from src.application import exceptions
 from src.application.constants import (
@@ -29,9 +28,6 @@ from src.application.utils import (
     validate_non_empty_fields,
 )
 
-logging.config.dictConfig(db_settings.LOGGING_CONFIG)
-logger = logging.getLogger(__name__)
-
 
 @dataclass
 class ReviewProcessingService:
@@ -47,7 +43,7 @@ class ReviewProcessingService:
     review_producer: review_interfaces.IReviewProducer
     analyze_consumer: review_interfaces.IAnalyzeConsumer
     websocket_manager: review_interfaces.IWebSocketManager
-    excel_manager: review_interfaces.ExcelManager
+    excel_manager: review_interfaces.IExcelManager
 
     async def process_test_reviews(
         self,
@@ -124,7 +120,11 @@ class ReviewProcessingService:
                     )
         except Exception as e:
             logger.exception(
-                "Произошла ошибка при обработке тестовых отзывов: %s", str(e)
+                (
+                    "Произошла ошибка при обработке тестовых отзывов. "
+                    "(message: %s)"
+                ),
+                str(e)
             )
             raise exceptions.ReviewsProcessingException
 
@@ -161,7 +161,7 @@ class ReviewProcessingService:
             raise exceptions.FileEmptyException
 
         # Проверка на кол-во строк
-        user = await self.user_repo.get_user_premium_by_id(user_id)
+        user = await self.user_repo.get_user_info_by_id(user_id)
         if (
             not user.is_premium
             and get_file_num_rows(ws) > ALLOWED_NUM_ROWS
@@ -224,39 +224,48 @@ class ReviewProcessingService:
         try:
             # Отправка отзывов в очередь для анализа
             await self.review_producer.send_reviews(
-                list(prepared_reviews), io_settings.REVIEW_QUEUE_NAME
+                prepared_reviews, io_settings.REVIEW_QUEUE_NAME
             )
-            logger.info("Отзывы из файла отправлены в сервис анализа отзывов")
+            logger.info(
+                (
+                    "Отзывы из файла отправлены в сервис анализа отзывов. "
+                    "(user_id: %s)"
+                ),
+                user_id
+            )
 
             # Ожидание и получение результатов анализа из очереди
             async with self.analyze_consumer as consumer:
                 async for analyze_results in consumer.receive_analyze_results(
                     io_settings.ANALYZE_QUEUE_NAME
                 ):
-                    logger.info("Получен результат анализа отзывов из файла")
+                    logger.info(
+                        (
+                            "Получен результат анализа отзывов из файла. "
+                            "(user_id: %s)"
+                        ),
+                        user_id
+                    )
 
                     # Проверка статуса результата анализа
                     if analyze_results["status"] == Status.ERROR.value:
                         raise Exception
 
                     # Сохранение результатов анализа в базе данных
-                    analyze_result = entities.AnalyzeInput(
-                        user_id=user_id,
-                        dt=get_current_dt(TimeConstants.DEFAULT_TIMEZONE),
-                        source_type=SourceType.FILE.value,
-                        source_url=file.filename,
-                        entries_analyze=analyze_results["entries_analyze"],
-                        full_analyze=analyze_results["full_analyze"],
-                        status=analyze_results["status"]
-                    )
-
                     analyze = await self.analyze_repo.save_analyze(
-                        analyze_result
+                        entities.AnalyzeInput(
+                            user_id=user_id,
+                            source_type=SourceType.FILE.value,
+                            source_url=file.filename,
+                            entries_analyze=analyze_results["entries_analyze"],
+                            full_analyze=analyze_results["full_analyze"],
+                            status=analyze_results["status"]
+                        )
                     )
 
                     logger.info(
-                        "Результат анализа сохранён в БД, (id - %s)",
-                        str(analyze.id)
+                        "Результат анализа сохранён в БД. (analyze_id: %s)",
+                        analyze.id
                     )
 
                     await self.websocket_manager.send_message(
@@ -267,21 +276,26 @@ class ReviewProcessingService:
                     return None
         except Exception as e:
             logger.exception(
-                "Произошла ошибка при обработке отзывов из файла: %s", str(e)
+                (
+                    "Произошла ошибка при обработке отзывов из файла. "
+                    "(user_id: %s, "
+                    "message: %s)"
+                ),
+                user_id,
+                str(e)
             )
 
             # Сохранение ошибочного результата анализа в базе данных
-            analyze_error = entities.AnalyzeInput(
-                user_id=user_id,
-                dt=get_current_dt(TimeConstants.DEFAULT_TIMEZONE),
-                source_type=SourceType.FILE.value,
-                source_url=file.filename,
-                entries_analyze=None,
-                full_analyze=None,
-                status=analyze_results["status"]
+            await self.analyze_repo.save_analyze(
+                entities.AnalyzeInput(
+                    user_id=user_id,
+                    source_type=SourceType.FILE.value,
+                    source_url=file.filename,
+                    entries_analyze=None,
+                    full_analyze=None,
+                    status=analyze_results["status"]
+                )
             )
-
-            await self.analyze_repo.save_analyze(analyze_error)
 
             await self.websocket_manager.send_message(
                 user_id,
@@ -299,7 +313,7 @@ class ResultAnalyzeService:
 
     analyze_repo: review_interfaces.IAnalyzeRepository
     user_repo: user_interfaces.IUserRepository
-    excel_manager: review_interfaces.ExcelManager
+    excel_manager: review_interfaces.IExcelManager
 
     async def get_analyze_results(
         self,
@@ -335,9 +349,7 @@ class ResultAnalyzeService:
         # Конвертация даты анализа в строковый формат
         analyze.dt = datetime_to_json(analyze.dt)
 
-        return schemas.AnalyzeResponse(
-            **asdict(analyze)
-        )
+        return schemas.AnalyzeResponse(**asdict(analyze))
 
     async def get_all_analyze_results(
         self,
@@ -496,10 +508,8 @@ class ResultAnalyzeService:
         указанным идентификатором не найден.
         """
 
-        user = await self.user_repo.get_user_premium_by_id(user_id)
-        if (
-            not user.is_premium
-        ):
+        user = await self.user_repo.get_user_info_by_id(user_id)
+        if not user.is_premium:
             raise exceptions.PremiumSubscriptionRequiredException(
                 type=PremiumSubscriptionRequiredTypes.DOWNLOAD.value
             )
@@ -512,7 +522,10 @@ class ResultAnalyzeService:
         if analyze is None:
             raise exceptions.AnalyzeNotFoundException
 
-        logger.info("Формируем результат анализа в Excel файл.")
+        logger.info(
+            "Формируем результат анализа в Excel файл. (user_id: %s)",
+            user_id
+        )
 
         analyze_dict = asdict(analyze)
         full_analyze = await self._process_full_analyze_report_data(
@@ -522,11 +535,14 @@ class ResultAnalyzeService:
             analyze_dict
         )
 
-        logger.info("Excel файл с реузльтатом анализа сформирован.")
-
         temp_file_path = self.excel_manager.create_analyze_report(
             shot_analyze,
             full_analyze
+        )
+
+        logger.info(
+            "Excel файл с реузльтатом анализа сформирован. (user_id: %s)",
+            user_id
         )
 
         return {

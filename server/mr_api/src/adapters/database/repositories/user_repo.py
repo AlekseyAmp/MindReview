@@ -95,21 +95,23 @@ class UserRepository(SABaseRepository, interfaces.IUserRepository):
             return entities.User(**user)
         return None
 
-    async def get_user_premium_by_id(
+    async def get_user_info_by_id(
         self,
         user_id: int
-    ) -> entities.UserIsPremium | None:
+    ) -> entities.UserInfo | None:
         """
-        Получает статус подписки из базы данных по его id.
+        Получает информцию (роль, премиум)
+        о пользователе из базы данных по его id.
 
         :param user_id: ID пользователя.
 
-        :return: Есть премиум или нет | None.
+        :return: UserInfo | None.
         """
         table: sqla.Table = tables.users
 
         query: sqla.Select = (
             sqla.select(
+                table.c.role,
                 table.c.is_premium
             )
             .filter(
@@ -120,5 +122,5 @@ class UserRepository(SABaseRepository, interfaces.IUserRepository):
         user = self.session.execute(query).mappings().one_or_none()
 
         if user:
-            return entities.UserIsPremium(**user)
+            return entities.UserInfo(**user)
         return None

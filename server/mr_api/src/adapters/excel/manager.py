@@ -10,7 +10,7 @@ from src.application.review import interfaces
 
 
 @dataclass
-class ExcelManager(interfaces.ExcelManager):
+class ExcelManager(interfaces.IExcelManager):
     """
     Класс для работы с Excel документами.
     """

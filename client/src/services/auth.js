@@ -1,77 +1,105 @@
-import axios from '../utils/axios';
-import Cookies from 'js-cookie';
+import axios from "../utils/axios";
+import Cookies from "js-cookie";
 
-
-export async function register_user(first_name, last_name, email, password, setError, setShowError, setSuccess, setShowSuccess, navigate) {
-    try {
-      const response = await axios.post('auth/register', { first_name, last_name, email, password });
-  
-      if (response.data) {
-        Cookies.set('access_token', response.data.access_token);
-        Cookies.set('refresh_token', response.data.refresh_token);
-        setSuccess("Добро пожаловать!");
-        setShowSuccess(true);
-        setTimeout(() => {
-            setShowSuccess(false);
-            setSuccess(null);
-            navigate('/');
-            window.location.reload();
-        }, 500);
-      }
-    } catch (error) {
-      const errorMessage = error.response.data.detail;
-      setError(errorMessage);
-      setShowError(true);
-      setSuccess(null);
-      setShowSuccess(false)
-      setTimeout(() => {
-          setShowError(false);
-          setError(null);
-      }, 2500);
-    }
-}
-
-
-export async function login_user(email, password, setError, setShowError, setSuccess, setShowSuccess, navigate) {
+export async function registerUser(
+  first_name,
+  last_name,
+  email,
+  password,
+  setError,
+  setShowError,
+  setSuccess,
+  setShowSuccess,
+  navigate
+) {
   try {
-    const response = await axios.post('auth/login', { email, password });
-
+    const response = await axios.post("auth/register", {
+      first_name,
+      last_name,
+      email,
+      password,
+    });
     if (response.data) {
-      Cookies.set('access_token', response.data.access_token);
-      Cookies.set('refresh_token', response.data.refresh_token);
-      setSuccess("Рады видеть вас снова!");
+      Cookies.set("access_token", response.data.access_token);
+      Cookies.set("refresh_token", response.data.refresh_token);
+      setSuccess("Добро пожаловать!");
       setShowSuccess(true);
       setTimeout(() => {
-          setShowSuccess(false);
-          setSuccess(null);
-          navigate('/');
-          window.location.reload();
+        setShowSuccess(false);
+        setSuccess(null);
+        navigate("/");
+        window.location.reload();
       }, 500);
     }
   } catch (error) {
     const errorMessage = error.response.data.detail;
-    setError(errorMessage);
+    if (errorMessage[0].msg === "value is not a valid email address") {
+      setError("Неверный формат электронной почты");
+    } else {
+      setError(errorMessage);
+    }
     setShowError(true);
     setSuccess(null);
-    setShowSuccess(false)
+    setShowSuccess(false);
     setTimeout(() => {
-        setShowError(false);
-        setError(null);
+      setShowError(false);
+      setError(null);
     }, 2500);
   }
 }
 
-
-export async function logout_user(setError, setShowError, navigate) {
+export async function loginUser(
+  email,
+  password,
+  setError,
+  setShowError,
+  setSuccess,
+  setShowSuccess,
+  navigate
+) {
   try {
-    const response = await axios.post('auth/logout');
+    const response = await axios.post("auth/login", { email, password });
+
+    if (response.data) {
+      Cookies.set("access_token", response.data.access_token);
+      Cookies.set("refresh_token", response.data.refresh_token);
+      setSuccess("Рады видеть вас снова!");
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+        setSuccess(null);
+        navigate("/");
+        window.location.reload();
+      }, 500);
+      return true;
+    }
+  } catch (error) {
+    const errorMessage = error.response.data.detail;
+    if (errorMessage[0].msg === "value is not a valid email address") {
+      setError("Неверный формат электронной почты");
+    } else {
+      setError(errorMessage);
+    }
+    setShowError(true);
+    setSuccess(null);
+    setShowSuccess(false);
+    setTimeout(() => {
+      setShowError(false);
+      setError(null);
+    }, 2500);
+  }
+}
+
+export async function logoutUser(setError, setShowError, navigate) {
+  try {
+    const response = await axios.post("auth/logout");
 
     if (response.data) {
       const cookies = Object.keys(Cookies.get());
-      cookies.forEach(cookie => {
-          Cookies.remove(cookie);
+      cookies.forEach((cookie) => {
+        Cookies.remove(cookie);
       });
-      navigate('/login');
+      navigate("/login");
       window.location.reload();
     }
   } catch (error) {
@@ -84,7 +112,6 @@ export async function logout_user(setError, setShowError, navigate) {
     }, 2500);
   }
 }
-
 
 // export async function refresh_token() {
 //   try {
@@ -100,4 +127,3 @@ export async function logout_user(setError, setShowError, navigate) {
 //     console.log(error.response.data.detail);
 //   }
 // }
-
