@@ -60,15 +60,15 @@ class FeedbackService:
         logger.info(
             (
                 "Письмо от пользователя направлено к службе поддержки. "
-                "(user_id: %s, "
+                "(feedback_id: %s, "
                 "sender_email: %s, "
                 "recipient_email: %s, "
-                "feedback_id: %s)"
+                "user_id: %s)"
             ),
-            user_id,
+            feedback_data.id,
             feedback_data.sender_email,
             feedback_data.recipient_email,
-            feedback_data.id
+            user_id
         )
 
         # Конвертация даты обратной связи в строковый формат
@@ -140,15 +140,15 @@ class FeedbackService:
         logger.info(
             (
                 "Письмо от службы поддержки отправлено на почту. "
-                "(user_id: %s, "
+                "(feedback_id: %s, "
                 "sender_email: %s, "
                 "recipient_email: %s, "
-                "feedback_id: %s)"
+                "user_id: %s)"
             ),
-            user_id,
+            feedback_data.id,
             sender_email,
             recipient_email,
-            feedback_data.id
+            user_id
         ),
 
         return {"message": f"Письмо отправлено на почту {recipient_email}"}

@@ -33,9 +33,6 @@ from src.application.utils import (
 class ReviewProcessingService:
     """
     Сервис подготовки отзывов для анализа.
-
-    Этот сервис предоставляет функциональность
-    для подготовки отзывов к анализу.
     """
 
     analyze_repo: review_interfaces.IAnalyzeRepository
@@ -134,7 +131,8 @@ class ReviewProcessingService:
         user_id: int
     ) -> None:
         """
-        Подготавливает тестовые отзывы для дальнейшего анализа.
+        Промежуточная проверка, перед тем, 
+        как файл с отзывами начнёт анализироваться.
 
         :param file: Загруженный файл с обзорами.
 
@@ -380,9 +378,9 @@ class ResultAnalyzeService:
 
         return analyze_results
 
-    async def _process_short_analyze_report_data(self, analyze: dict) -> list:
+    async def _process_short_analyze_report(self, analyze: dict) -> list:
         """
-        Обрабатывает данные для короткого анализа.
+        Обрабатывает данные для отчёта короткого анализа.
 
         :param analyze: Словарь с данными анализа.
 
@@ -459,9 +457,9 @@ class ResultAnalyzeService:
 
         return short_analyze
 
-    async def _process_full_analyze_report_data(self, analyze: dict) -> list:
+    async def _process_full_analyze_report(self, analyze: dict) -> list:
         """
-        Обрабатывает данные для полного анализа.
+        Обрабатывает данные для отчёта полного анализа.
 
         :param analyze: Словарь с данными анализа.
 
@@ -528,10 +526,10 @@ class ResultAnalyzeService:
         )
 
         analyze_dict = asdict(analyze)
-        full_analyze = await self._process_full_analyze_report_data(
+        full_analyze = await self._process_full_analyze_report(
             analyze_dict
         )
-        shot_analyze = await self._process_short_analyze_report_data(
+        shot_analyze = await self._process_short_analyze_report(
             analyze_dict
         )
 

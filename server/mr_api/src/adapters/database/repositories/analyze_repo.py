@@ -111,9 +111,9 @@ class AnalyzeRepository(SABaseRepository, interfaces.IAnalyzeRepository):
             .filter(
                 table.c.user_id == user_id
             )
-        ).order_by(table.c.dt.desc()).limit(1)
+        ).order_by(table.c.id.desc())
 
-        analyze = self.session.execute(query).mappings().one_or_none()
+        analyze = self.session.execute(query).mappings().first()
 
         if analyze:
             return entities.AnalyzeReturn(**analyze)
