@@ -4,6 +4,7 @@ import Main from "./pages/Main/Main";
 import Analyze from "./pages/Analyze/Analyze";
 import Archive from "./pages/Archive/Archive";
 import Feedback from "./pages/Feedback/Feedback";
+import Admin from "./pages/Admin/Admin";
 
 const routes = [
   {
@@ -29,6 +30,10 @@ const routes = [
   {
     path: "/feedback",
     page: Feedback
+  },
+  {
+    path: "/admin",
+    page: Admin
   }
 ];
 
