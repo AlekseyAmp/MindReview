@@ -1,5 +1,7 @@
 from dataclasses import asdict, dataclass
 
+from async_lru import alru_cache
+
 from fastapi import UploadFile
 
 from src.adapters.api.analyze import schemas
@@ -131,7 +133,7 @@ class ReviewProcessingService:
         user_id: int
     ) -> None:
         """
-        Промежуточная проверка, перед тем, 
+        Промежуточная проверка, перед тем,
         как файл с отзывами начнёт анализироваться.
 
         :param file: Загруженный файл с обзорами.
@@ -204,7 +206,8 @@ class ReviewProcessingService:
         #   Предполагается, что отзывы находятся в первом столбце Excel файла
         for index, row in enumerate(ws.iter_rows(values_only=True), start=1):
             message = str(row[0]).strip()
-            # Проверка на наличие дубликатов перед добавлением в множество
+            # Проверка на наличие дубликатов перед добавлением
+            #   в подготовленные отзывы
             if message not in unique_reviews:
                 unique_reviews.add(message)
                 prepared_reviews.append(
@@ -247,7 +250,7 @@ class ReviewProcessingService:
 
                     # Проверка статуса результата анализа
                     if analyze_results["status"] == Status.ERROR.value:
-                        raise Exception
+                        raise exceptions.AnalyzeServiceException
 
                     # Сохранение результатов анализа в базе данных
                     analyze = await self.analyze_repo.save_analyze(
@@ -313,6 +316,10 @@ class ResultAnalyzeService:
     user_repo: user_interfaces.IUserRepository
     excel_manager: review_interfaces.IExcelManager
 
+    def __hash__(self) -> int:
+        return hash(id(self))
+
+    @alru_cache
     async def get_analyze_results(
         self,
         user_id: int,
@@ -349,6 +356,7 @@ class ResultAnalyzeService:
 
         return schemas.AnalyzeResponse(**asdict(analyze))
 
+    @alru_cache
     async def get_all_analyze_results(
         self,
         user_id: int

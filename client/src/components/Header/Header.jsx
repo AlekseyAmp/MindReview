@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link } from "react-router-dom";
 
 import { access_token } from "../../constants/token";
+import { decodeJWT } from "../../utils/token";
 import PurpleButton from "../UI/Buttons/PurpleButton/PurpleButton";
 import OutlineButton from "../UI/Buttons/OutlineButton/OutlineButton";
 import Logout from "../Logout/Logout";
@@ -9,6 +10,7 @@ import styles from "./Header.module.scss";
 
 function Header() {
   const isAuthorized = !!access_token;
+  const decode = decodeJWT(access_token);
   const [analyzeDropdownOpen, setAnalyzeDropdownOpen] = useState(false);
 
   return (
@@ -65,6 +67,17 @@ function Header() {
           <ul>
             {isAuthorized ? (
               <>
+                {decode.header.role === 'admin' && (
+                  <li>
+                    <Link to="/admin">
+                      <OutlineButton
+                        title="Админ панель"
+                        width={200}
+                        height={40}
+                      />
+                    </Link>
+                  </li>
+                )}
                 <li>
                   <Link to="/profile">
                     <OutlineButton

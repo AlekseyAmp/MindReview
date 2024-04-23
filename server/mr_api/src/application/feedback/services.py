@@ -1,5 +1,6 @@
-
 from dataclasses import asdict, dataclass
+
+from async_lru import alru_cache
 
 from src.adapters.api.feedback import schemas
 from src.adapters.email.settings import settings as email_settings
@@ -25,6 +26,9 @@ class FeedbackService:
     feedback_repo: feedback_interfaces.IFeedbackRepository
     user_repo: user_interfaces.IUserRepository
     mail_sender: feedback_interfaces.IMailSender
+
+    def __hash__(self) -> int:
+        return hash(id(self))
 
     async def send_feedback(
         self,
@@ -113,6 +117,9 @@ class FeedbackService:
         if not feedback:
             return exceptions.FeedbackNotFound
 
+        if feedback.response:
+            raise exceptions.FeedbackAlreadyAnsweredException
+
         # Обновляем запись в БД
         feedback_data = await self.feedback_repo.update_feedback(
             entities.FeedbackUpdate(
@@ -132,7 +139,7 @@ class FeedbackService:
         self.mail_sender.send_mail(
             title="MindReview: Получено письмо от службы поддержки",
             message=(
-                f"Ваше письмо: {feedback_data.message}. "
+                f"Ваше письмо: {feedback_data.message}.\n"
                 f"Ответ от службы поддержки: {reply_feedback.response}"
             ),
             to_address=recipient_email
@@ -153,6 +160,7 @@ class FeedbackService:
 
         return {"message": f"Письмо отправлено на почту {recipient_email}"}
 
+    @alru_cache
     async def get_all_feedbacks(
         self,
         user_id: int
@@ -189,10 +197,11 @@ class FeedbackService:
             for answered_feedback in all_answered_feedbacks
         ]
 
+        # Переворачиваем, старые в начале, новые в конце
         unanswered_feedbacks = [
             schemas.FeedbackResponse(**asdict(unanswered_feedback))
             for unanswered_feedback in all_unanswered_feedbacks
-        ]
+        ][::-1]
 
         return schemas.FeedbacksResponse(
             answered=answered_feedbacks,

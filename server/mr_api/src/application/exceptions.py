@@ -124,3 +124,9 @@ class AnalyzeNotFoundException(HTTPException):
 class FeedbackNotFound(HTTPException):
     status_code: int = 404
     detail: str = "Запись обратной связи не найдена."
+
+
+@dataclass
+class FeedbackAlreadyAnsweredException(HTTPException):
+    status_code: int = 409
+    detail: str = "Запись обратной связи уже отвечена."

@@ -39,5 +39,56 @@
   }
   .tabContent {
     margin-top: 50px;
+    .feedbackSections {
+      display: flex;
+      flex-direction: row;
+      gap: 100px;
+      margin-top: 50px;
+      .titlee {
+        display: flex;
+        flex-direction: row;
+        gap: 5px;
+        align-items: center;
+        h3 {
+          font-weight: bold;
+          font-size: 16px;
+        }
+        img {
+          width: 25px;
+          height: 25px;
+        }
+      }
+    }
+  }
+}
+
+.notAuth {
+  margin-top: 200px;
+  h3 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 20px;
+  }
+
+  .notAuthData {
+    h3 {
+      a {
+        font-size: 20px;
+        transition: 0.2s;
+      }
+
+      a:hover {
+        color: $orange;
+      }
+    }
+  }
+}
+
+.notAdmin {
+  margin-top: 200px;
+  h3 {
+    text-align: center;
+    margin-bottom: 30px;
+    font-size: 20px;
   }
 }
