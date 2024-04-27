@@ -6,6 +6,7 @@ from fastapi import Depends
 
 from src.adapters.database.repositories import (  # noqa
     AnalyzeRepository,
+    SystemRepository,
     UserRepository,
 )
 from src.adapters.database.sa_session import get_session
@@ -22,6 +23,12 @@ def get_analyze_repo(
     session: Session = Depends(get_session)
 ) -> AnalyzeRepository:
     return AnalyzeRepository(session)
+
+
+def get_system_repo(
+    session: Session = Depends(get_session)
+) -> SystemRepository:
+    return SystemRepository(session)
 
 
 def get_user_repo(
@@ -58,6 +65,7 @@ def get_excel_manager() -> ExcelManager:
 
 def get_review_processing_service(
     analyze_repo: AnalyzeRepository = Depends(get_analyze_repo),
+    system_repo: SystemRepository = Depends(get_system_repo),
     user_repo: UserRepository = Depends(get_user_repo),
     review_producer: ReviewProducer = Depends(get_review_producer),
     analyze_consumer: AnalyzeConsumer = Depends(get_analyze_consumer),
@@ -66,6 +74,7 @@ def get_review_processing_service(
 ) -> ReviewProcessingService:
     return ReviewProcessingService(
         analyze_repo,
+        system_repo,
         user_repo,
         review_producer,
         analyze_consumer,
@@ -76,11 +85,13 @@ def get_review_processing_service(
 
 def get_result_analyze_service(
     analyze_repo: AnalyzeRepository = Depends(get_analyze_repo),
+    system_repo: SystemRepository = Depends(get_system_repo),
     user_repo: UserRepository = Depends(get_user_repo),
     excel_manager: ExcelManager = Depends(get_excel_manager)
 ) -> ResultAnalyzeService:
     return ResultAnalyzeService(
         analyze_repo,
+        system_repo,
         user_repo,
         excel_manager
     )

@@ -5,11 +5,13 @@ import { access_token } from "../../constants/token";
 
 import styles from "./Admin.module.scss";
 import { getAllFeedbacks } from "../../services/feedback";
+import { getSystemInfo } from "../../services/system";
 import FeedbackCard from "../../components/Cards/FeedbackCard/FeedbackCard";
 
 function Admin() {
   const isAuthorized = !!access_token;
   const [feedbacks, setFeedbacks] = useState({ answered: [], unanswered: [] });
+  const [systemInfo, setSystemInfo] = useState();
   const decode = decodeJWT(access_token);
   const [updateTrigger, setUpdateTrigger] = useState(false);
 
@@ -36,6 +38,23 @@ function Admin() {
       fetchAllFeedbacks();
     }
   }, [updateTrigger, activeTab]);
+
+  useEffect(() => {
+    async function fetchSystemInfo() {
+      try {
+        const data = await getSystemInfo();
+        if (data) {
+          setSystemInfo(data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    if (activeTab === "system") {
+      fetchSystemInfo();
+    }
+  }, [activeTab]);
 
   const refreshFeedbacks = () => {
     setUpdateTrigger((prev) => !prev);
@@ -159,6 +178,47 @@ function Admin() {
       )}
       {activeTab === "stopwords" && (
         <div className={styles.tabContent}>Stopwords management content</div>
+      )}
+      {activeTab === "logs" && <div className={styles.tabContent}>logs</div>}
+      {activeTab === "system" && (
+        <div className={styles.tabContent}>
+          <h3 className={`${styles.title} bold-text`}>Информация о системе</h3>
+          <div className={styles.systemInfoContent}>
+            <div className={styles.card}>
+              <p className={`purple-text ${styles.cardtitle}`}>
+                Общая информация
+              </p>
+              <div className={styles.cardinfo}>
+                <p className={`dark-text`}>
+                  Версия приложения: {systemInfo?.version}
+                </p>
+              </div>
+            </div>
+            <div className={styles.card}>
+              <p className={`purple-text ${styles.cardtitle}`}>Сервер</p>
+              <div className={styles.cardinfo}>
+                <p className={`dark-text`}>Хост API: {systemInfo?.api_host}</p>
+                <p className={`dark-text`}>
+                  Документация API: {systemInfo?.api_docs}
+                </p>
+                <p className={`dark-text`}>
+                  Хост WebSocket: {systemInfo?.ws_host}
+                </p>
+                <p className={`dark-text`}>
+                  Хост RabbitMQ: {systemInfo?.rabbitmq_host}
+                </p>
+              </div>
+            </div>
+            <div className={styles.card}>
+              <p className={`purple-text ${styles.cardtitle}`}>Клиент</p>
+              <div className={styles.cardinfo}>
+                <p className={`dark-text`}>
+                  Хост веб-интерфейса: {systemInfo?.client_host}
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
       )}
     </div>
   );

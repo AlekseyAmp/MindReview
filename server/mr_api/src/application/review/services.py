@@ -11,6 +11,7 @@ from src.application import exceptions
 from src.application.constants import (
     ALLOWED_NUM_ROWS,
     NOT_EXCEL_DATA,
+    LogLevel,
     PremiumSubscriptionRequiredTypes,
     SourceType,
     Status,
@@ -18,6 +19,8 @@ from src.application.constants import (
 )
 from src.application.review import entities
 from src.application.review import interfaces as review_interfaces
+from src.application.system import interfaces as system_interfaces
+from src.application.system.entities import LogInput
 from src.application.user import interfaces as user_interfaces
 from src.application.utils import (
     datetime_to_excel,
@@ -38,6 +41,7 @@ class ReviewProcessingService:
     """
 
     analyze_repo: review_interfaces.IAnalyzeRepository
+    system_repo: system_interfaces.ISystemRepository
     user_repo: user_interfaces.IUserRepository
     review_producer: review_interfaces.IReviewProducer
     analyze_consumer: review_interfaces.IAnalyzeConsumer
@@ -93,14 +97,27 @@ class ReviewProcessingService:
             await self.review_producer.send_reviews(
                 prepared_reviews, io_settings.REVIEW_QUEUE_NAME
             )
-            logger.info("Тестовые отзывы отправлены в сервис анализа отзывов")
+
+            log_info = LogInput(
+                dt=get_current_dt(TimeConstants.DEFAULT_TIMEZONE),
+                level=LogLevel.INFO.value,
+                message="Тестовые отзывы отправлены в сервис анализа отзывов"
+            )
+            logger.info(log_info.message)
+            await self.system_repo.save_log(log_info)
 
             # Ожидание и получение результатов анализа из очереди
             async with self.analyze_consumer as consumer:
                 async for analyze_results in consumer.receive_analyze_results(
                     io_settings.ANALYZE_QUEUE_NAME
                 ):
-                    logger.info("Получен результат анализа тестовых отзывов")
+                    log_info = LogInput(
+                        dt=get_current_dt(TimeConstants.DEFAULT_TIMEZONE),
+                        level=LogLevel.INFO.value,
+                        message="Получен результат анализа тестовых отзывов"
+                    )
+                    logger.info(log_info.message)
+                    await self.system_repo.save_log(log_info)
 
                     # Если в сервисе анализов произошла ошибка,
                     #   то вернет нам статус с ошибкой
@@ -118,13 +135,17 @@ class ReviewProcessingService:
                         status=Status.COMPLETE.value
                     )
         except Exception as e:
-            logger.exception(
-                (
+            log_info = LogInput(
+                dt=get_current_dt(TimeConstants.DEFAULT_TIMEZONE),
+                level=LogLevel.ERROR.value,
+                message=(
                     "Произошла ошибка при обработке тестовых отзывов. "
-                    "(message: %s)"
-                ),
-                str(e)
+                    f"(message: {str(e)})"
+                )
             )
+            logger.exception(log_info.message)
+            await self.system_repo.save_log(log_info)
+
             raise exceptions.ReviewsProcessingException
 
     async def process_reviews_from_file_middleware(
@@ -227,26 +248,33 @@ class ReviewProcessingService:
             await self.review_producer.send_reviews(
                 prepared_reviews, io_settings.REVIEW_QUEUE_NAME
             )
-            logger.info(
-                (
+
+            log_info = LogInput(
+                dt=get_current_dt(TimeConstants.DEFAULT_TIMEZONE),
+                level=LogLevel.INFO.value,
+                message=(
                     "Отзывы из файла отправлены в сервис анализа отзывов. "
-                    "(user_id: %s)"
-                ),
-                user_id
+                    f"(user_id: {user_id})"
+                )
             )
+            logger.info(log_info.message)
+            await self.system_repo.save_log(log_info)
 
             # Ожидание и получение результатов анализа из очереди
             async with self.analyze_consumer as consumer:
                 async for analyze_results in consumer.receive_analyze_results(
                     io_settings.ANALYZE_QUEUE_NAME
                 ):
-                    logger.info(
-                        (
+                    log_info = LogInput(
+                        dt=get_current_dt(TimeConstants.DEFAULT_TIMEZONE),
+                        level=LogLevel.INFO.value,
+                        message=(
                             "Получен результат анализа отзывов из файла. "
-                            "(user_id: %s)"
-                        ),
-                        user_id
+                            f"(user_id: {user_id})"
+                        )
                     )
+                    logger.info(log_info.message)
+                    await self.system_repo.save_log(log_info)
 
                     # Проверка статуса результата анализа
                     if analyze_results["status"] == Status.ERROR.value:
@@ -264,10 +292,17 @@ class ReviewProcessingService:
                         )
                     )
 
-                    logger.info(
-                        "Результат анализа сохранён в БД. (analyze_id: %s)",
-                        analyze.id
+                    log_info = LogInput(
+                        dt=get_current_dt(TimeConstants.DEFAULT_TIMEZONE),
+                        level=LogLevel.INFO.value,
+                        message=(
+                            "Результат анализа сохранён в БД. ",
+                            f"(analyze_id: {analyze.id})"
+                        )
                     )
+                    print(log_info)
+                    logger.info(log_info.message)
+                    await self.system_repo.save_log(log_info)
 
                     await self.websocket_manager.send_message(
                         user_id,
@@ -276,15 +311,17 @@ class ReviewProcessingService:
 
                     return None
         except Exception as e:
-            logger.exception(
-                (
+            log_info = LogInput(
+                dt=get_current_dt(TimeConstants.DEFAULT_TIMEZONE),
+                level=LogLevel.ERROR.value,
+                message=(
                     "Произошла ошибка при обработке отзывов из файла. "
-                    "(user_id: %s, "
-                    "message: %s)"
-                ),
-                user_id,
-                str(e)
+                    f"(user_id: {user_id} ",
+                    f"message: {str(e)})"
+                )
             )
+            logger.exception(log_info.message)
+            await self.system_repo.save_log(log_info)
 
             # Сохранение ошибочного результата анализа в базе данных
             await self.analyze_repo.save_analyze(
@@ -313,6 +350,7 @@ class ResultAnalyzeService:
     """
 
     analyze_repo: review_interfaces.IAnalyzeRepository
+    system_repo: system_interfaces.ISystemRepository
     user_repo: user_interfaces.IUserRepository
     excel_manager: review_interfaces.IExcelManager
 
@@ -528,10 +566,16 @@ class ResultAnalyzeService:
         if analyze is None:
             raise exceptions.AnalyzeNotFoundException
 
-        logger.info(
-            "Формируем результат анализа в Excel файл. (user_id: %s)",
-            user_id
+        log_info = LogInput(
+            dt=get_current_dt(TimeConstants.DEFAULT_TIMEZONE),
+            level=LogLevel.INFO.value,
+            message=(
+                "Формируем результат анализа в Excel файл. "
+                f"(user_id: {user_id})"
+            )
         )
+        logger.info(log_info.message)
+        await self.system_repo.save_log(log_info)
 
         analyze_dict = asdict(analyze)
         full_analyze = await self._process_full_analyze_report(
@@ -546,10 +590,16 @@ class ResultAnalyzeService:
             full_analyze
         )
 
-        logger.info(
-            "Excel файл с реузльтатом анализа сформирован. (user_id: %s)",
-            user_id
+        log_info = LogInput(
+            dt=get_current_dt(TimeConstants.DEFAULT_TIMEZONE),
+            level=LogLevel.INFO.value,
+            message=(
+                "Excel файл с реузльтатом анализа сформирован. "
+                f"(user_id: {user_id})"
+            )
         )
+        logger.info(log_info.message)
+        await self.system_repo.save_log(log_info)
 
         return {
             "file_path": temp_file_path,

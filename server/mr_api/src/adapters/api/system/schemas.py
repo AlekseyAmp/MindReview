@@ -12,5 +12,12 @@ class SystemInfoResponse(BaseModel):
     rabbitmq_host: str = SystemConstants.RABBITMQ_HOST
 
 
+class LogResponse(BaseModel):
+    id: int
+    dt: str
+    level: str
+    message: str
+
+
 class LogsResponse(BaseModel):
-    pass
+    logs: list[LogResponse | None]

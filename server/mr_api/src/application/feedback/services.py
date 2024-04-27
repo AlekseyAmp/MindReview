@@ -6,9 +6,11 @@ from src.adapters.api.feedback import schemas
 from src.adapters.email.settings import settings as email_settings
 from src.adapters.logger.settings import logger
 from src.application import exceptions
-from src.application.constants import TimeConstants, UserRole
+from src.application.constants import LogLevel, TimeConstants, UserRole
 from src.application.feedback import entities
 from src.application.feedback import interfaces as feedback_interfaces
+from src.application.system import interfaces as system_interfaces
+from src.application.system.entities import LogInput
 from src.application.user import interfaces as user_interfaces
 from src.application.utils import (
     datetime_to_json,
@@ -24,6 +26,7 @@ class FeedbackService:
     """
 
     feedback_repo: feedback_interfaces.IFeedbackRepository
+    system_repo: system_interfaces.ISystemRepository
     user_repo: user_interfaces.IUserRepository
     mail_sender: feedback_interfaces.IMailSender
 
@@ -61,19 +64,19 @@ class FeedbackService:
             feedback
         )
 
-        logger.info(
-            (
+        log_info = LogInput(
+            dt=get_current_dt(TimeConstants.DEFAULT_TIMEZONE),
+            level=LogLevel.INFO.value,
+            message=(
                 "Письмо от пользователя направлено к службе поддержки. "
-                "(feedback_id: %s, "
-                "sender_email: %s, "
-                "recipient_email: %s, "
-                "user_id: %s)"
-            ),
-            feedback_data.id,
-            feedback_data.sender_email,
-            feedback_data.recipient_email,
-            user_id
+                f"(feedback_id: {feedback_data.id}, "
+                f"sender_email: {feedback_data.sender_email}, "
+                f"recipient_email: {feedback_data.recipient_email}, "
+                f"user_id: {user_id})"
+            )
         )
+        logger.info(log_info.message)
+        await self.system_repo.save_log(log_info)
 
         # Конвертация даты обратной связи в строковый формат
         feedback_data.dt = datetime_to_json(feedback_data.dt)
@@ -145,19 +148,20 @@ class FeedbackService:
             ),
             to_address=recipient_email
         )
-        logger.info(
-            (
+
+        log_info = LogInput(
+            dt=get_current_dt(TimeConstants.DEFAULT_TIMEZONE),
+            level=LogLevel.INFO.value,
+            message=(
                 "Письмо от службы поддержки отправлено на почту. "
-                "(feedback_id: %s, "
-                "sender_email: %s, "
-                "recipient_email: %s, "
-                "user_id: %s)"
-            ),
-            feedback_data.id,
-            sender_email,
-            recipient_email,
-            user_id
-        ),
+                f"(feedback_id: {feedback_data.id}, "
+                f"sender_email: {sender_email}, "
+                f"recipient_email: {recipient_email}, "
+                f"user_id: {user_id})"
+            )
+        )
+        logger.info(log_info.message)
+        await self.system_repo.save_log(log_info)
 
         return {"message": f"Письмо отправлено на почту {recipient_email}"}
 
@@ -172,7 +176,7 @@ class FeedbackService:
 
         :param user_id: Идентификатор пользователя.
 
-        :return: FeedbacksResponse.
+        :return: Список обратной связи.
         """
 
         user = await self.user_repo.get_user_info_by_id(user_id)
@@ -198,11 +202,10 @@ class FeedbackService:
             for answered_feedback in all_answered_feedbacks
         ]
 
-        # Переворачиваем, старые в начале, новые в конце
         unanswered_feedbacks = [
             schemas.FeedbackResponse(**asdict(unanswered_feedback))
             for unanswered_feedback in all_unanswered_feedbacks
-        ][::-1]
+        ]
 
         return schemas.FeedbacksResponse(
             answered=answered_feedbacks,

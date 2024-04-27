@@ -102,6 +102,7 @@ class FeedbackRepository(SABaseRepository, interfaces.IFeedbackRepository):
         :return: Объект обратной связи или None,
         если обратная связь не найдена.
         """
+
         table: sqla.Table = tables.feedbacks
 
         query: sqla.Select = (
@@ -134,6 +135,7 @@ class FeedbackRepository(SABaseRepository, interfaces.IFeedbackRepository):
         :return: Список объектов обратной связи или пустой список,
         если обратных связей нет.
         """
+
         table: sqla.Table = tables.feedbacks
 
         query: sqla.Select = (
@@ -180,7 +182,7 @@ class FeedbackRepository(SABaseRepository, interfaces.IFeedbackRepository):
             )
             .filter(
                 table.c.response.is_(None)
-            ).order_by(table.c.id.desc())
+            )
         )
 
         feedbacks = self.session.execute(query).mappings().all()

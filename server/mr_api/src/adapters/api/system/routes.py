@@ -23,12 +23,12 @@ async def get_system_info(
 
 @router.get(
     path="/logs",
-    response_model=schemas.SystemInfoResponse
+    response_model=schemas.LogsResponse
 )
-async def get_system_logs(
+async def get_all_logs(
     user_id: int = Depends(get_user_id),
     system_service: SystemService = Depends(
         get_system_service
     ),
-) -> schemas.SystemInfoResponse:
-    return await system_service.get_system_logs(user_id)
+) -> schemas.LogsResponse:
+    return await system_service.get_all_logs(user_id)

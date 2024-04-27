@@ -4,6 +4,7 @@ from fastapi import Depends
 
 from src.adapters.database.repositories import (
     FeedbackRepository,
+    SystemRepository,
     UserRepository,
 )
 from src.adapters.database.sa_session import get_session
@@ -17,6 +18,12 @@ def get_feedback_repo(
     return FeedbackRepository(session)
 
 
+def get_system_repo(
+    session: Session = Depends(get_session)
+) -> SystemRepository:
+    return SystemRepository(session)
+
+
 def get_user_repo(session: Session = Depends(get_session)) -> UserRepository:
     return UserRepository(session)
 
@@ -27,11 +34,13 @@ def get_mail_sender() -> MailSender:
 
 def get_feedback_service(
     feedback_repo: FeedbackRepository = Depends(get_feedback_repo),
+    system_repo: SystemRepository = Depends(get_system_repo),
     user_repo: UserRepository = Depends(get_user_repo),
     mail_sender: MailSender = Depends(get_mail_sender)
 ) -> FeedbackService:
     return FeedbackService(
         feedback_repo,
+        system_repo,
         user_repo,
         mail_sender
     )
