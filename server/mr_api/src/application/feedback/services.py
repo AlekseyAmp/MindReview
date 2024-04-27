@@ -38,8 +38,8 @@ class FeedbackService:
         """
         Сохраняет обратную связь от пользователя.
 
-        :param user_id: Идентификатор пользователя.
         :param send_feedback: Объект обратной связи.
+        :param user_id: ID пользователя.
 
         :return: Объект обратной связи.
         """
@@ -95,6 +95,7 @@ class FeedbackService:
         высылает письмо на почту.
 
         :param reply_feedback: Объект обратной связи.
+        :param user_id: ID пользователя.
 
         :return: Объект обратной связи.
         """

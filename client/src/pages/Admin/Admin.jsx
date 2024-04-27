@@ -107,6 +107,24 @@ function Admin() {
             Управление стоп-словами
           </button>
         </div>
+        <div className={styles.tab}>
+          <button
+            className={`${activeTab === "logs" ? styles.active : ""} gray-text`}
+            onClick={() => setActiveTab("logs")}
+          >
+            Логи приложения
+          </button>
+        </div>
+        <div className={styles.tab}>
+          <button
+            className={`${
+              activeTab === "system" ? styles.active : ""
+            } gray-text`}
+            onClick={() => setActiveTab("system")}
+          >
+            О системе
+          </button>
+        </div>
       </div>
       {activeTab === "users" && <div className={styles.tabContent}>users</div>}
       {activeTab === "feedbacks" && (

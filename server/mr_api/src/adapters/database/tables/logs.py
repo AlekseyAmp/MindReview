@@ -1,6 +1,8 @@
-from sqlalchemy import Column, DateTime, Integer, MetaData, String, Table, Text
+from sqlalchemy import Column, DateTime, Integer, MetaData, Table, Text
+from sqlalchemy.dialects.postgresql import ENUM
 
 from src.adapters.database.settings import settings
+from src.application.constants import LogLevel
 
 metadata = MetaData(schema=settings.SCHEMAS["logs"])
 
@@ -21,7 +23,10 @@ logs = Table(
     ),
     Column(
         'level',
-        String,
+        ENUM(
+            *[log_level.value for log_level in LogLevel],
+            name='log_level_enum',
+        ),
         nullable=False,
         comment='Уровень важности лога',
     ),

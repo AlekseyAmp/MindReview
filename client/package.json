@@ -9,8 +9,6 @@
     "axios": "^1.6.7",
     "js-cookie": "^3.0.5",
     "react": "^18.2.0",
-    "react-chartjs-2": "^5.2.0",
-    "react-chartjs-3": "^2.7.7",
     "react-dom": "^18.2.0",
     "react-dropzone": "^14.2.3",
     "react-google-charts": "^4.0.1",
@@ -34,9 +32,13 @@
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
-    "extends": [
-      "react-app",
-      "react-app/jest"
+    "overrides": [
+      {
+        "files": ["**/*.test.js"],
+        "env": {
+          "jest": true
+        }
+      }
     ]
   },
   "browserslist": {

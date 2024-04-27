@@ -47,6 +47,17 @@ class Status(Enum):
     ERROR: str = "error"
 
 
+class LogLevel(Enum):
+    """
+    Уровни важности лога
+    """
+    DEBUG: str = "complete"
+    INFO: str = "info"
+    WARNING: str = "warning"
+    ERROR: str = "error"
+    CRITICAL: str = "critical"
+
+
 # Если нет определенных данных в анализе
 NOT_EXCEL_DATA: str = "Нет данных"
 
@@ -66,3 +77,21 @@ class PremiumSubscriptionRequiredTypes(Enum):
     # Тип: Максимальное кол-во строк отзывов,
     #   которые можно анализировать
     MAX_ROWS: str = "max_rows"
+
+
+class SystemConstants:
+    """
+    Константы для информации о системе.
+    """
+
+    # Общее
+    SYSTEM_VERSION: str = "0.1"
+
+    # Клиент
+    CLIENT_HOST: str = "http://localhost:3000"
+
+    # Сервер
+    API_HOST: str = "http://localhost:8000"
+    API_DOCS: str = "http://localhost:8000/docs"
+    WS_HOST: str = "ws://localhost:8000/api"
+    RABBITMQ_HOST: str = "http://localhost:15672"
