@@ -174,8 +174,6 @@ class UserRepository(SABaseRepository, interfaces.IUserRepository):
             update_fields[table.c.last_name] = user.last_name
         if user.email:
             update_fields[table.c.email] = user.email
-        if user.password:
-            update_fields[table.c.password] = user.password
 
         query: sqla.Update = (
             sqla.update(
@@ -228,3 +226,42 @@ class UserRepository(SABaseRepository, interfaces.IUserRepository):
         self.session.execute(query)
         self.session.commit()
         return user_id
+
+    async def set_user_premium(
+        self,
+        user_id: int
+    ) -> entities.User:
+        """
+        Устанавливает пользователю премиум статус в базе данных.
+
+        :param user_id: ID пользователя.
+
+        :return: Объект пользователя с обновленным премиум статусом.
+        """
+        table: sqla.Table = tables.users
+
+        query: sqla.Update = (
+            sqla.update(
+                table
+            )
+            .filter(
+                table.c.id == user_id
+            )
+            .values(
+                is_premium=True
+            )
+            .returning(
+                table.c.id,
+                table.c.dt,
+                table.c.first_name,
+                table.c.last_name,
+                table.c.email,
+                table.c.password,
+                table.c.role,
+                table.c.is_premium
+            )
+        )
+
+        user = self.session.execute(query).mappings().one()
+        self.session.commit()
+        return entities.User(**user)

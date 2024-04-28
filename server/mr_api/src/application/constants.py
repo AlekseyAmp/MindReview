@@ -51,7 +51,7 @@ class LogLevel(Enum):
     """
     Уровни важности лога
     """
-    DEBUG: str = "complete"
+    DEBUG: str = "debug"
     INFO: str = "info"
     WARNING: str = "warning"
     ERROR: str = "error"

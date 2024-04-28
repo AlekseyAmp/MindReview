@@ -1,22 +1,10 @@
-from fastapi_jwt_auth.exceptions import MissingTokenError
 from sqlalchemy.orm import Session
 
 from fastapi import Depends
 
-from src.adapters.api.settings import AuthJWT
 from src.adapters.database.repositories import SystemRepository, UserRepository
 from src.adapters.database.sa_session import get_session
-from src.application import exceptions
-from src.application.user.services import UserService
-
-
-def get_user_id(authorize: AuthJWT = Depends()) -> str:
-    try:
-        authorize.jwt_required()
-        user_id = authorize.get_jwt_subject()
-        return int(user_id)
-    except MissingTokenError:
-        raise exceptions.NotAuthenticatedException
+from src.application.payment.services import PaymentService
 
 
 def get_user_repo(session: Session = Depends(get_session)) -> UserRepository:
@@ -29,8 +17,8 @@ def get_system_repo(
     return SystemRepository(session)
 
 
-def get_user_service(
+def get_payment_service(
     user_repo: UserRepository = Depends(get_user_repo),
     system_repo: SystemRepository = Depends(get_system_repo)
-) -> UserService:
-    return UserService(user_repo, system_repo)
+) -> PaymentService:
+    return PaymentService(user_repo, system_repo)

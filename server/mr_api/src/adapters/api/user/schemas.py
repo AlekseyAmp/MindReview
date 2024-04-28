@@ -1,4 +1,4 @@
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr
 
 
 class UserResponse(BaseModel):
@@ -13,3 +13,9 @@ class UserResponse(BaseModel):
 
 class UsersResponse(BaseModel):
     users: list[UserResponse | None]
+
+
+class UpdateUser(BaseModel):
+    first_name: str | None
+    last_name: str | None
+    email: EmailStr | None

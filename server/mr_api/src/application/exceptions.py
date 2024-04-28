@@ -28,26 +28,11 @@ class FileEmptyException(HTTPException):
     detail: str = "Файл пустой."
 
 
+# Общее
 @dataclass
-class PremiumSubscriptionRequiredException(HTTPException):
-    type: str
-    allowed_num_rows: int | None = None
+class NoAccessException(HTTPException):
+    detail: str = "Нет прав доступа"
     status_code: int = 403
-    detail: str | None = None
-
-    def __post_init__(self) -> None:
-        if self.type == PremiumSubscriptionRequiredTypes.MAX_ROWS.value:
-            self.detail = (
-                "Нужна \"Премиум\" подписка аккаунт, "
-                f"чтобы загрузить более {self.allowed_num_rows} строк отзывов."
-            )
-        elif self.type == PremiumSubscriptionRequiredTypes.DOWNLOAD.value:
-            self.detail = (
-                "Нужна \"Премиум\" подписка аккаунт, "
-                "чтобы скачать результат анализа."
-            )
-        else:
-            return None
 
 
 # Ошибки, связанные с пользователем
@@ -89,6 +74,28 @@ class AlreadyAuthenticatedException(HTTPException):
 class NotAdminRoleException(HTTPException):
     detail: str = "Нет прав администратора"
     status_code: int = 403
+
+
+@dataclass
+class PremiumSubscriptionRequiredException(HTTPException):
+    type: str
+    allowed_num_rows: int | None = None
+    status_code: int = 403
+    detail: str | None = None
+
+    def __post_init__(self) -> None:
+        if self.type == PremiumSubscriptionRequiredTypes.MAX_ROWS.value:
+            self.detail = (
+                "Нужна \"Премиум\" подписка аккаунт, "
+                f"чтобы загрузить более {self.allowed_num_rows} строк отзывов."
+            )
+        elif self.type == PremiumSubscriptionRequiredTypes.DOWNLOAD.value:
+            self.detail = (
+                "Нужна \"Премиум\" подписка аккаунт, "
+                "чтобы скачать результат анализа."
+            )
+        else:
+            return None
 
 
 # Ошибки связанные с отзывами и анализом

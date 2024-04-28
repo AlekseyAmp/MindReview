@@ -45,3 +45,10 @@ class IUserRepository(ABC):
         user_id: int
     ) -> int:
         pass
+
+    @abstractmethod
+    async def set_user_premium(
+        self,
+        user_id: int
+    ) -> entities.User:
+        pass
