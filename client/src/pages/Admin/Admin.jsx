@@ -175,23 +175,31 @@ function Admin() {
                 <img src="../img/icons/done.svg" alt="done" />
                 <h3 className="green-text">Отвеченная:</h3>
               </div>
-              {feedbacks.answered.map((feedback) => (
-                <FeedbackCard feedback={feedback} />
-              ))}
+              {feedbacks.answered.length > 0 ? (
+                feedbacks.answered.map((feedback) => (
+                  <FeedbackCard key={feedback.id} feedback={feedback} />
+                ))
+              ) : (
+                <p className={`dark-text mt35px`}>Нет данных</p>
+              )}
             </div>
             <div className={styles.unanswered}>
               <div className={styles.titlee}>
                 <img src="../img/icons/wait.svg" alt="wait" />
                 <h3 className="orange-text">Неотвеченная:</h3>
               </div>
-              {feedbacks.unanswered.map((feedback) => (
-                <div key={feedback.id}>
-                  <FeedbackCard
-                    feedback={feedback}
-                    refreshFeedbacks={refreshFeedbacks}
-                  />
-                </div>
-              ))}
+              {feedbacks.unanswered.length > 0 ? (
+                feedbacks.unanswered.map((feedback) => (
+                  <div key={feedback.id}>
+                    <FeedbackCard
+                      feedback={feedback}
+                      refreshFeedbacks={refreshFeedbacks}
+                    />
+                  </div>
+                ))
+              ) : (
+                <p className={`dark-text mt35px`}>Нет данных</p>
+              )}
             </div>
           </div>
         </div>
@@ -201,9 +209,12 @@ function Admin() {
       )}
       {activeTab === "logs" && (
         <div className={styles.tabContent}>
-          {logs.logs.map((log) => (
-            <LogCard log={log} />
-          ))}
+          <h3 className={`${styles.title} bold-text`}>Логи приложения</h3>
+          {logs.logs.length > 0 ? (
+            logs.logs.map((log) => <LogCard key={log.id} log={log} />)
+          ) : (
+            <p className={`dark-text`}>Нет данных</p>
+          )}
         </div>
       )}
       {activeTab === "system" && (
