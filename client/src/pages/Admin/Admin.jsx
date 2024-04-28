@@ -5,13 +5,15 @@ import { access_token } from "../../constants/token";
 
 import styles from "./Admin.module.scss";
 import { getAllFeedbacks } from "../../services/feedback";
-import { getSystemInfo } from "../../services/system";
+import { getSystemInfo, getAllLogs } from "../../services/system";
 import FeedbackCard from "../../components/Cards/FeedbackCard/FeedbackCard";
+import LogCard from "../../components/Cards/LogCard/LogCard";
 
 function Admin() {
   const isAuthorized = !!access_token;
   const [feedbacks, setFeedbacks] = useState({ answered: [], unanswered: [] });
   const [systemInfo, setSystemInfo] = useState();
+  const [logs, setLogs] = useState({ logs: [] });
   const decode = decodeJWT(access_token);
   const [updateTrigger, setUpdateTrigger] = useState(false);
 
@@ -53,6 +55,24 @@ function Admin() {
 
     if (activeTab === "system") {
       fetchSystemInfo();
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
+    async function fetchAllLogs() {
+      try {
+        const data = await getAllLogs();
+        if (data) {
+          setLogs(data);
+          console.log(logs);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    if (activeTab === "logs") {
+      fetchAllLogs();
     }
   }, [activeTab]);
 
@@ -179,7 +199,13 @@ function Admin() {
       {activeTab === "stopwords" && (
         <div className={styles.tabContent}>Stopwords management content</div>
       )}
-      {activeTab === "logs" && <div className={styles.tabContent}>logs</div>}
+      {activeTab === "logs" && (
+        <div className={styles.tabContent}>
+          {logs.logs.map((log) => (
+            <LogCard log={log} />
+          ))}
+        </div>
+      )}
       {activeTab === "system" && (
         <div className={styles.tabContent}>
           <h3 className={`${styles.title} bold-text`}>Информация о системе</h3>
@@ -190,22 +216,29 @@ function Admin() {
               </p>
               <div className={styles.cardinfo}>
                 <p className={`dark-text`}>
-                  Версия приложения: {systemInfo?.version}
+                  <span className={`bold-text`}>Версия приложения:</span>{" "}
+                  {systemInfo?.version}
                 </p>
               </div>
             </div>
             <div className={styles.card}>
               <p className={`purple-text ${styles.cardtitle}`}>Сервер</p>
               <div className={styles.cardinfo}>
-                <p className={`dark-text`}>Хост API: {systemInfo?.api_host}</p>
                 <p className={`dark-text`}>
-                  Документация API: {systemInfo?.api_docs}
+                  <span className={`bold-text`}>Хост API:</span>{" "}
+                  {systemInfo?.api_host}
                 </p>
                 <p className={`dark-text`}>
-                  Хост WebSocket: {systemInfo?.ws_host}
+                  <span className={`bold-text`}>Документация API:</span>{" "}
+                  {systemInfo?.api_docs}
                 </p>
                 <p className={`dark-text`}>
-                  Хост RabbitMQ: {systemInfo?.rabbitmq_host}
+                  <span className={`bold-text`}>Хост WebSocket:</span>{" "}
+                  {systemInfo?.ws_host}
+                </p>
+                <p className={`dark-text`}>
+                  <span className={`bold-text`}>Хост RabbitMQ:</span>{" "}
+                  {systemInfo?.rabbitmq_host}
                 </p>
               </div>
             </div>
@@ -213,7 +246,8 @@ function Admin() {
               <p className={`purple-text ${styles.cardtitle}`}>Клиент</p>
               <div className={styles.cardinfo}>
                 <p className={`dark-text`}>
-                  Хост веб-интерфейса: {systemInfo?.client_host}
+                  <span className={`bold-text`}>Хост веб-интерфейса:</span>{" "}
+                  {systemInfo?.client_host}
                 </p>
               </div>
             </div>

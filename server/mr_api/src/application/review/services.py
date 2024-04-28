@@ -316,7 +316,7 @@ class ReviewProcessingService:
                 level=LogLevel.ERROR.value,
                 message=(
                     "Произошла ошибка при обработке отзывов из файла. "
-                    f"(user_id: {user_id} ",
+                    f"(user_id: {user_id} "
                     f"message: {str(e)})"
                 )
             )

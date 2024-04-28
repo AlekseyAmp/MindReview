@@ -1,0 +1,25 @@
+@import "../../../assets/variables.scss";
+
+.card {
+  transition: 0.2s;
+  margin-top: 25px;
+  padding: 10px 20px;
+  border-radius: 10px;
+  background-color: $white;
+  width: 1000px;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+  .header {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  .content {
+    margin-top: 20px;
+    word-wrap: break-word;
+    p {
+      span {
+        font-size: 16px;
+      }
+    }
+  }
+}
