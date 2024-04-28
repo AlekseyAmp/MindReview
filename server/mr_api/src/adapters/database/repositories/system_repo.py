@@ -57,10 +57,7 @@ class SystemRepository(SABaseRepository, interfaces.ISystemRepository):
 
         query: sqla.Select = (
             sqla.select(
-                table.c.id,
-                table.c.dt,
-                table.c.level,
-                table.c.message
+                table
             ).order_by(table.c.id.desc())
         )
 

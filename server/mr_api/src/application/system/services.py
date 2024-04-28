@@ -25,7 +25,7 @@ class SystemService:
     @alru_cache
     async def get_system_info(
         self,
-        user_id: int,
+        user_id: int
     ) -> schemas.SystemInfoResponse:
         """
         Возвращает информацию о системе.
@@ -46,7 +46,7 @@ class SystemService:
     @alru_cache
     async def get_all_logs(
         self,
-        user_id: int,
+        user_id: int
     ) -> schemas.LogsResponse:
         """
         Возвращает логи приложения.

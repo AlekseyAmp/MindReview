@@ -5,6 +5,7 @@ from src.adapters.api.analyze import routes as AnalyzeRouter
 from src.adapters.api.auth import routes as AuthRouter
 from src.adapters.api.feedback import routes as FeedbackRouter
 from src.adapters.api.system import routes as SystemRouter
+from src.adapters.api.user import routes as UserRouter
 from src.application.constants import SystemConstants
 
 app = FastAPI(title="MindReviewAPI", version=SystemConstants.SYSTEM_VERSION)
@@ -24,6 +25,9 @@ app.add_middleware(
 
 app.add_api_websocket_route('/ws', AuthRouter.router)
 app.include_router(AuthRouter.router, tags=['auth'], prefix='/api/auth')
+app.include_router(
+    UserRouter.router, tags=['user'], prefix='/api/user'
+)
 app.include_router(
     AnalyzeRouter.router, tags=['analyze'], prefix='/api/analyze'
 )
