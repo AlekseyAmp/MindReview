@@ -94,11 +94,12 @@ export async function uploadFile(
     });
     if (response.data) {
       setIsLoadAnalyze(true);
-      await getNotifyMessage(user_id, setSuccess, setShowSuccess);
+      await getNotifyMessage(user_id);
       setIsLoadAnalyze(false);
     }
   } catch (error) {
     const errorMessage = error.response.data.detail;
+    await getNotifyMessage(user_id);
     setError(errorMessage);
     setShowError(true);
     setSuccess(null);

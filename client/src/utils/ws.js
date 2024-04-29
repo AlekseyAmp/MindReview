@@ -2,7 +2,7 @@ import { toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { BASE_WS_URL } from "../constants/baseURL";
 
-export function getNotifyMessage(userId, setSuccess, setShowSuccess) {
+export function getNotifyMessage(userId) {
   return new Promise((resolve, reject) => {
     const socket = new WebSocket(`${BASE_WS_URL}/analyze/ws/${userId}`);
 

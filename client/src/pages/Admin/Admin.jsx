@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { decodeJWT } from "../../utils/token";
 import { access_token } from "../../constants/token";
+import { Helmet } from "react-helmet";
 
 import styles from "./Admin.module.scss";
 import { getAllFeedbacks } from "../../services/feedback";
@@ -20,6 +21,42 @@ function Admin() {
   let isAdmin = false;
   if (isAuthorized) {
     isAdmin = decode?.header?.role === "admin";
+  }
+
+  if (!isAuthorized) {
+    return (
+      <div className={styles.notAuth}>
+        <Helmet>
+          <title>MindReview - Админ панель</title>
+        </Helmet>
+        <div className={styles.notAuthData}>
+          <h3 className={`${styles.title} dark-text`}>
+            <Link className={`purple-text`} to="/login">
+              Войдите{" "}
+            </Link>{" "}
+            или{" "}
+            <Link className={`purple-text`} to="/register">
+              зарегистрируйтесь
+            </Link>
+          </h3>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className={styles.notAdmin}>
+        <Helmet>
+          <title>MindReview - Админ панель</title>
+        </Helmet>
+        <div className={styles.notAdminData}>
+          <h3 className={`${styles.title} bold-text`}>
+            Вы не являетесь администратором.
+          </h3>
+        </div>
+      </div>
+    );
   }
 
   const [activeTab, setActiveTab] = useState("stopwords");
@@ -80,41 +117,11 @@ function Admin() {
     setUpdateTrigger((prev) => !prev);
   };
 
-  if (!isAuthorized) {
-    return (
-      <div className={styles.notAuth}>
-        <div className={styles.notAuthData}>
-          <h3 className={`${styles.title} dark-text`}>
-            <Link className={`purple-text`} to="/login">
-              Войдите{" "}
-            </Link>{" "}
-            или{" "}
-            <Link className={`purple-text`} to="/register">
-              зарегистрируйтесь
-            </Link>
-          </h3>
-        </div>
-      </div>
-    );
-  }
-
-  if (!isAdmin) {
-    return (
-      <div className={styles.notAdmin}>
-        <div className={styles.notAdminData}>
-          <h3 className={`${styles.title} bold-text`}>
-            Вы не являетесь администратором.
-          </h3>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className={styles.admin}>
-      <h3 className={`${styles.title} bold-text`}>
-        Выберите способ загрузки отзывов
-      </h3>
+      <Helmet>
+        <title>MindReview - Админ панель</title>
+      </Helmet>
       <div className={styles.tabs}>
         <div className={styles.tab}>
           <button

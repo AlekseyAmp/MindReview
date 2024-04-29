@@ -19,7 +19,7 @@ function Logout() {
   return (
     <>
       <OrangeButton
-        title="Выйти (Временно)"
+        title="Выйти"
         onClick={handleLogoutSubmit}
         width={200}
         height={40}

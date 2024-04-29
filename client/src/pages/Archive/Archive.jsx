@@ -24,6 +24,27 @@ function Archive() {
   const [sentimentDropdownOpen, setSentimentDropdownOpen] = useState(false);
   const [isOtherInfoOpen, setIsOtherInfoOpen] = useState(false);
 
+  if (!isAuthorized) {
+    return (
+      <div className={styles.notAuth}>
+        <Helmet>
+          <title>MindReview - Архив</title>
+        </Helmet>
+        <div className={styles.notAuthData}>
+          <h3 className={`${styles.title} dark-text`}>
+            <Link className={`purple-text`} to="/login">
+              Войдите{" "}
+            </Link>{" "}
+            или{" "}
+            <Link className={`purple-text`} to="/register">
+              зарегистрируйтесь
+            </Link>
+          </h3>
+        </div>
+      </div>
+    );
+  }
+
   useEffect(() => {
     async function fetchAllAnalyzeResults() {
       try {
@@ -255,24 +276,6 @@ function Archive() {
 
     return topKeywords;
   };
-
-  if (!isAuthorized) {
-    return (
-      <div className={styles.notAuth}>
-        <div className={styles.notAuthData}>
-          <h3 className={`${styles.title} dark-text`}>
-            <Link className={`purple-text`} to="/login">
-              Войдите{" "}
-            </Link>{" "}
-            или{" "}
-            <Link className={`purple-text`} to="/register">
-              зарегистрируйтесь
-            </Link>
-          </h3>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className={styles.archive}>

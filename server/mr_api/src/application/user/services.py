@@ -48,18 +48,18 @@ class UserService:
         :return: Информация о пользователе.
         """
 
-        # Проверка на существование пользователя
-        user = await self.user_repo.get_user_by_id(user_id)
-        if not user:
-            raise exceptions.UserNotFoundException
-
         # Проверка на роль администратора
-        check_admin_user = await self.user_repo.get_user_by_id(
+        check_admin_user = await self.user_repo.get_user_info_by_id(
             current_user_id
         )
         if check_admin_user.role != UserRole.ADMIN.value:
             if current_user_id != user_id:
                 raise exceptions.NoAccessException
+
+        # Проверка на существование пользователя
+        user = await self.user_repo.get_user_by_id(user_id)
+        if not user:
+            raise exceptions.UserNotFoundException
 
         return schemas.UserResponse(
             id=user.id,
@@ -118,7 +118,7 @@ class UserService:
         update_user: schemas.UpdateUser,
         current_user_id: int,
         user_id: int
-    ) -> schemas.UserResponse:
+    ) -> dict[str, str]:
         """
         Редактирует информацию о пользователе.
 
@@ -133,23 +133,27 @@ class UserService:
         if empty_field:
             raise exceptions.EmptyFieldException(empty_field)
 
-        # Проверка на существование пользователя
-        user = await self.user_repo.get_user_by_id(user_id)
-        if not user:
-            raise exceptions.UserNotFoundException
-
-        # Проверка на существующий email
-        user_exsist = await self.user_repo.get_user_by_email(update_user.email)
-        if user_exsist:
-            raise exceptions.UserExistsException(update_user.email)
-
         # Проверка на роль администратора
-        check_admin_user = await self.user_repo.get_user_by_id(
+        check_admin_user = await self.user_repo.get_user_info_by_id(
             current_user_id
         )
         if check_admin_user.role != UserRole.ADMIN.value:
             if current_user_id != user_id:
                 raise exceptions.NoAccessException
+
+        # Проверка на существование пользователя
+        user = await self.user_repo.get_user_by_id(user_id)
+        if not user:
+            raise exceptions.UserNotFoundException
+
+        # Если пользователь меняет email,
+        # проверяем, что новый email не существует у другого пользователя
+        if update_user.email != user.email:
+            user_exist = await self.user_repo.get_user_by_email(
+                update_user.email
+            )
+            if user_exist and user_exist.id != user_id:
+                raise exceptions.UserExistsException(update_user.email)
 
         user_update = entities.UserUpdate(
             id=user.id,
@@ -173,15 +177,7 @@ class UserService:
         logger.info(log_info.message)
         await self.system_repo.save_log(log_info)
 
-        return schemas.UserResponse(
-            id=user_data.id,
-            dt=datetime_to_json(user_data.dt),
-            first_name=user_data.first_name,
-            last_name=user_data.last_name,
-            email=user_data.email,
-            role=user_data.role,
-            is_premium=user_data.is_premium
-        )
+        return {"message": "Информация обновлена."}
 
     async def delete_user(
         self,
@@ -199,18 +195,18 @@ class UserService:
         :return: Сообщение о удалении.
         """
 
-        # Проверка на существование пользователя
-        user = await self.user_repo.get_user_by_id(user_id)
-        if not user:
-            raise exceptions.UserNotFoundException
-
         # Проверка на роль администратора
-        check_admin_user = await self.user_repo.get_user_by_id(
+        check_admin_user = await self.user_repo.get_user_info_by_id(
             current_user_id
         )
         if check_admin_user.role != UserRole.ADMIN.value:
             if current_user_id != user_id:
                 raise exceptions.NoAccessException
+
+        # Проверка на существование пользователя
+        user = await self.user_repo.get_user_by_id(user_id)
+        if not user:
+            raise exceptions.UserNotFoundException
 
         await self.user_repo.delete_user_by_id(user_id)
 

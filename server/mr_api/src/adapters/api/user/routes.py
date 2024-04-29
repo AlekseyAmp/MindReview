@@ -37,7 +37,7 @@ async def get_all_users(
 
 @router.patch(
     path="/edit/{user_id}",
-    response_model=schemas.UpdateUser
+    response_model=dict[str, str]
 )
 async def edit_user(
     update_user: schemas.UpdateUser,
@@ -46,7 +46,7 @@ async def edit_user(
     user_service: UserService = Depends(
         get_user_service
     ),
-) -> schemas.UsersResponse:
+) -> dict[str, str]:
     return await user_service.edit_user(update_user, current_user_id, user_id)
 
 

@@ -4,6 +4,8 @@ import Main from "./pages/Main/Main";
 import Analyze from "./pages/Analyze/Analyze";
 import Archive from "./pages/Archive/Archive";
 import Feedback from "./pages/Feedback/Feedback";
+import Profile from "./pages/Profile/Profile";
+import Premium from "./pages/Premium/Premium";
 import Admin from "./pages/Admin/Admin";
 
 const routes = [
@@ -29,12 +31,20 @@ const routes = [
   },
   {
     path: "/feedback",
-    page: Feedback
+    page: Feedback,
+  },
+  {
+    path: "/profile",
+    page: Profile,
+  },
+  {
+    path: "/premium",
+    page: Premium,
   },
   {
     path: "/admin",
-    page: Admin
-  }
+    page: Admin,
+  },
 ];
 
 export default routes;

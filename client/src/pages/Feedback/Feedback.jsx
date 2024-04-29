@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { Helmet } from "react-helmet";
+import { Link } from "react-router-dom";
 import { sendFeedback } from "../../services/feedback";
+import { access_token } from "../../constants/token";
 import styles from "./Feedback.module.scss";
 import Textarea from "../../components/UI/Inputs/Textarea/Textarea";
 import Input from "../../components/UI/Inputs/Input/Input";
@@ -9,6 +11,8 @@ import ErrorBox from "../../components/PopUps/ErrorBox/ErrorBox";
 import SuccessBox from "../../components/PopUps/SuccessBox/SuccessBox";
 
 function Feedback() {
+  const isAuthorized = !!access_token;
+
   const [email, setEmail] = useState("");
   const [message, setMessage] = useState("");
   const [error, setError] = useState(null);
@@ -16,6 +20,27 @@ function Feedback() {
   const [success, setSuccess] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  if (!isAuthorized) {
+    return (
+      <div className={styles.notAuth}>
+        <Helmet>
+          <title>MindReview - Обратная связь</title>
+        </Helmet>
+        <div className={styles.notAuthData}>
+          <h3 className={`${styles.title} dark-text`}>
+            <Link className={`purple-text`} to="/login">
+              Войдите{" "}
+            </Link>{" "}
+            или{" "}
+            <Link className={`purple-text`} to="/register">
+              зарегистрируйтесь
+            </Link>
+          </h3>
+        </div>
+      </div>
+    );
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -42,8 +67,14 @@ function Feedback() {
     if (data) {
       setEmail("");
       setMessage("");
+      setSuccess("Письмо отправлено на почту " + email);
+      setShowSuccess(true);
+      setTimeout(() => {
+        setShowSuccess(false);
+        setSuccess(null);
+        setIsSubmitting(false);
+      }, 2500);
     }
-    setIsSubmitting(false);
   };
 
   return (

@@ -47,6 +47,27 @@ function Analyze() {
 
   const { analyze_id } = useParams();
 
+  if (!isAuthorized && !analyzeData) {
+    return (
+      <div className={styles.notAuth}>
+        <Helmet>
+          <title>MindReview - Анализ отзывов</title>
+        </Helmet>
+        <div className={styles.notAuthData}>
+          <h3 className={`${styles.title} dark-text`}>
+            <Link className={`purple-text`} to="/login">
+              Войдите{" "}
+            </Link>{" "}
+            или{" "}
+            <Link className={`purple-text`} to="/register">
+              зарегистрируйтесь
+            </Link>
+          </h3>
+        </div>
+      </div>
+    );
+  }
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -218,24 +239,6 @@ function Analyze() {
   };
 
   const sentimentInfo = getSentimentInfo(mostPopularSentiment);
-
-  if (!isAuthorized && !analyzeData) {
-    return (
-      <div className={styles.notAuth}>
-        <div className={styles.notAuthData}>
-          <h3 className={`${styles.title} dark-text`}>
-            <Link className={`purple-text`} to="/login">
-              Войдите{" "}
-            </Link>{" "}
-            или{" "}
-            <Link className={`purple-text`} to="/register">
-              зарегистрируйтесь
-            </Link>
-          </h3>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className={styles.analyze}>

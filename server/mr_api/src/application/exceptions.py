@@ -98,6 +98,12 @@ class PremiumSubscriptionRequiredException(HTTPException):
             return None
 
 
+@dataclass
+class UserAlreadyPremium(HTTPException):
+    detail: str = "Вы уже премиум-пользователь."
+    status_code: int = 403
+
+
 # Ошибки связанные с отзывами и анализом
 @dataclass
 class TooManyTestReviewsException(HTTPException):

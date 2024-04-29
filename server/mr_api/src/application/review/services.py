@@ -316,12 +316,17 @@ class ReviewProcessingService:
                 level=LogLevel.ERROR.value,
                 message=(
                     "Произошла ошибка при обработке отзывов из файла. "
-                    f"(user_id: {user_id} "
+                    f"(user_id: {user_id}, "
                     f"message: {str(e)})"
                 )
             )
             logger.exception(log_info.message)
             await self.system_repo.save_log(log_info)
+
+            await self.websocket_manager.send_message(
+                user_id,
+                "Произошла ошибка при обработке отзывов из файла."
+            )
 
             # Сохранение ошибочного результата анализа в базе данных
             await self.analyze_repo.save_analyze(
@@ -333,11 +338,6 @@ class ReviewProcessingService:
                     full_analyze=None,
                     status=analyze_results["status"]
                 )
-            )
-
-            await self.websocket_manager.send_message(
-                user_id,
-                "Произошла ошибка при обработке отзывов из файла."
             )
 
             return None
