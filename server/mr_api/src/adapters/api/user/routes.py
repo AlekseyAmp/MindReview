@@ -32,7 +32,7 @@ async def get_all_users(
         get_user_service
     ),
 ) -> list[schemas.UserResponse | None]:
-    return await user_service.get_all_users(user_id)
+    return await user_service.get_all_users(user_id)1
 
 
 @router.patch(
