@@ -22,7 +22,7 @@ export async function sendFeedback(
   } catch (error) {
     const errorMessage = error.response.data.detail;
     if (errorMessage[0].msg === "value is not a valid email address") {
-      setError("Неверный формат электронной почты");
+      setError("Неверный формат электронной почты.");
     } else {
       setError(errorMessage);
     }

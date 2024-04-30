@@ -75,7 +75,7 @@ class UserService:
     async def get_all_users(
         self,
         user_id: int
-    ) -> schemas.UsersResponse:
+    ) -> list[schemas.UserResponse | None]:
         """
         Возвращает всех пользователей.
 
@@ -109,9 +109,7 @@ class UserService:
             for user in users
         ]
 
-        return schemas.UsersResponse(
-            users=users,
-        )
+        return users
 
     async def edit_user(
         self,

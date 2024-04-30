@@ -54,7 +54,7 @@ export async function editUser(
   } catch (error) {
     const errorMessage = error.response.data.detail;
     if (errorMessage[0].msg === "value is not a valid email address") {
-      setError("Неверный формат электронной почты");
+      setError("Неверный формат электронной почты.");
     } else {
       setError(errorMessage);
     }
@@ -76,7 +76,7 @@ export async function deleteUser(
     const response = await axios.delete(`user/delete/${user_id}`);
 
     if (response.data) {
-        return response.data
+        return response.data.message;
     }
   } catch (error) {
     const errorMessage = error.response.data.detail;

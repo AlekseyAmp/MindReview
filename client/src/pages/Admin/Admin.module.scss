@@ -86,9 +86,88 @@
         }
       }
     }
+    .users {
+      position: relative;
+      margin-top: 15px;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      grid-gap: 15px;
+      .buttons {
+        display: flex;
+        gap: 20px;
+        flex-direction: row;
+      }
+      gap: 20px;
+      .edit {
+        transition: 0.2s;
+        padding: 20px;
+        border-radius: 10px;
+        background-color: $white;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+        // margin-top: 50px;
+        input {
+          display: flex;
+          margin-top: 10px;
+        }
+        .oneInputs {
+          display: flex;
+          gap: 20px;
+          flex-direction: row;
+        }
+        .twoInputs {
+          margin-top: 20px;
+          display: flex;
+          gap: 20px;
+          flex-direction: column;
+        }
+        button {
+          margin-top: 25px;
+        }
+        .premiumStatus {
+          img {
+            width: 20px;
+            height: 20px;
+          }
+          margin-bottom: 10px;
+          display: flex;
+          gap: 10px;
+          align-items: center;
+        }
+      }
+    }
   }
 }
+.modal {
+  // Стили для затемнения контента позади модального окна
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5); // Затемнение контента
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 999; // Поверх всего контента
 
+  .modalContent {
+    transition: 0.2s;
+    padding: 20px;
+    border-radius: 10px;
+    background-color: $white;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
+
+    h2 {
+      margin-bottom: 20px;
+    }
+
+    .modalButtons {
+      display: flex;
+      flex-direction: row;
+      gap: 20px;
+    }
+  }
+}
 .notAdmin {
   margin-top: 200px;
   h3 {

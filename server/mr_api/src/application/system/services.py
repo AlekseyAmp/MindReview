@@ -47,7 +47,7 @@ class SystemService:
     async def get_all_logs(
         self,
         user_id: int
-    ) -> schemas.LogsResponse:
+    ) -> list[schemas.LogResponse | None]:
         """
         Возвращает логи приложения.
 
@@ -73,6 +73,4 @@ class SystemService:
             for log in all_logs
         ]
 
-        return schemas.LogsResponse(
-            logs=logs,
-        )
+        return logs

@@ -24,14 +24,14 @@ async def get_user(
 
 @router.get(
     path="/get_all",
-    response_model=schemas.UsersResponse
+    response_model=list[schemas.UserResponse | None]
 )
 async def get_all_users(
     user_id: int = Depends(get_user_id),
     user_service: UserService = Depends(
         get_user_service
     ),
-) -> schemas.UsersResponse:
+) -> list[schemas.UserResponse | None]:
     return await user_service.get_all_users(user_id)
 
 

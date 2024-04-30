@@ -17,7 +17,3 @@ class LogResponse(BaseModel):
     dt: str
     level: str
     message: str
-
-
-class LogsResponse(BaseModel):
-    logs: list[LogResponse | None]

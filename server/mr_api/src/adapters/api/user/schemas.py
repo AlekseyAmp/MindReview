@@ -11,10 +11,6 @@ class UserResponse(BaseModel):
     is_premium: bool
 
 
-class UsersResponse(BaseModel):
-    users: list[UserResponse | None]
-
-
 class UpdateUser(BaseModel):
     first_name: str | None
     last_name: str | None

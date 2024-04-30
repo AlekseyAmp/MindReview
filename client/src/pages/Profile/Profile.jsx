@@ -169,7 +169,7 @@ function Profile() {
             {isPremium && (
               <div className={styles.premiumStatus}>
                 <img src="../img/icons/done.svg" alt="done" />
-                <p className={`green-text`}>Вы премиум пользователь.</p>
+                <p className={`green-text`}>Премиум пользователь.</p>
               </div>
             )}
             <div className={styles.oneInputs}>
