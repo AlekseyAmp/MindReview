@@ -279,6 +279,7 @@ function Admin() {
       </div>
       {activeTab === "users" && (
         <div className={styles.tabContent}>
+            <h3 className={`${styles.title} bold-text`}>Управление пользователями</h3>
           <div className={styles.users}>
             {users.length === 0 ? (
               <p className={`dark-text`}>Нет данных</p>

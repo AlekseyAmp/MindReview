@@ -92,9 +92,26 @@ class IExcelManager(ABC):
         pass
 
     @abstractmethod
+    def prepare_data_for_analyze(
+        self,
+        ws: Worksheet
+    ) -> list[entities.ReviewTemplate]:
+        pass
+
+    @abstractmethod
     def create_analyze_report(
         self,
         short_analyze: list,
         full_analyze: list
     ) -> str:
         pass
+
+
+class IReviewsParser(ABC):
+
+    @abstractmethod
+    def fetch_wildberries_reviews(
+        self,
+        reviews_id: int
+    ) -> list[entities.ReviewTemplate]:
+        None

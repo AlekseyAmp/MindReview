@@ -1,4 +1,3 @@
-import logging
 from dataclasses import asdict, dataclass
 
 from src.application.analyze import interfaces as analyze_interface

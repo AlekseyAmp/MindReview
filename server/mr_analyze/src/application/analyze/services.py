@@ -1,4 +1,3 @@
-import logging
 from dataclasses import asdict, dataclass
 
 from src.adapters.rpc.settings import settings
@@ -25,20 +24,14 @@ class AnalyzeService:
         Начинает обработку отзывов из очереди.
         """
 
-        logging.info("Сервис анализа запущен")
-        async with self.review_consumer as consumer:
-            # TODO: доделать
-            # reviews = await self.review_consumer.check_queue_empty(
-            #     settings.REVIEW_QUEUE_NAME
-            # )
-            # if reviews:
-            #     await self.analyze_reviews(reviews)
+        print("Сервис анализа запущен")
 
+        async with self.review_consumer as consumer:
             # Ожидание и получение результатов анализа из очереди
             async for reviews in consumer.receive_reviews(
                 settings.REVIEW_QUEUE_NAME
             ):
-                logging.info("Получены новые отзывы для анализа")
+                print("Получены новые отзывы для анализа")
                 await self.analyze_reviews(reviews)
 
     async def analyze_reviews(self, reviews: list[dict]) -> None:
@@ -48,7 +41,7 @@ class AnalyzeService:
         :param reviews: Список отзывов для анализа.
         """
         try:
-            logging.info("Начало анализа отзывов")
+            print("Начало анализа отзывов")
 
             # Получаем список все городов
             all_cities = self.data_repo.get_all_cities()
@@ -83,7 +76,7 @@ class AnalyzeService:
                 years=years
             )
 
-            logging.info("Анализ завершён")
+            print("Анализ завершён")
 
             # Подготавливаем результат анализа по каждому отзыву
             entries_analyze = (self._prepare_entries_analyze(
@@ -112,11 +105,11 @@ class AnalyzeService:
             await self.analyze_producer.send_analyze_results(
                 analyze_results, settings.ANALYZE_QUEUE_NAME
             )
-            logging.info("Результат анализа отправлен в очередь")
+            print("Результат анализа отправлен в очередь")
 
             return None
         except Exception as e:
-            logging.exception(
+            print(
                 "Произошла ошибка при анализе отзывов: %s", str(e)
             )
 

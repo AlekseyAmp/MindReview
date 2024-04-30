@@ -16,6 +16,7 @@ from src.adapters.api.analyze.dependencies import (
 )
 from src.adapters.api.user.dependencies import get_user_id
 from src.adapters.notify.websocket import WebSocketManager
+from src.application.constants import ReviewWebsite
 from src.application.review.services import (
     ResultAnalyzeService,
     ReviewProcessingService,
@@ -65,6 +66,27 @@ async def make_analyze_from_file(
     background_task.add_task(
         review_processing_service.process_reviews_from_file,
         file,
+        user_id,
+    )
+
+    return {"message": "Ваши отзывы отправлены на анализ."}
+
+
+@router.post(path="/source", response_model=dict[str, str])
+async def make_analyze_from_website(
+    website: ReviewWebsite,
+    reviews_id: int,
+    background_task: BackgroundTasks,
+    user_id: int = Depends(get_user_id),
+    review_processing_service: ReviewProcessingService = Depends(
+        get_review_processing_service
+    ),
+) -> dict[str, str]:
+
+    background_task.add_task(
+        review_processing_service.process_reviews_from_website,
+        website.value,
+        reviews_id,
         user_id,
     )
 

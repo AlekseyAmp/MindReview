@@ -1,7 +1,7 @@
 import re
 from dataclasses import dataclass
 
-from googletrans import Translator
+import argostranslate.translate
 from pymorphy3 import MorphAnalyzer
 from vaderSentiment.vaderSentiment import SentimentIntensityAnalyzer
 
@@ -23,7 +23,6 @@ class NLPService(interfaces.INLPService):
 
     sentiment_analyzer: SentimentIntensityAnalyzer
     morph_analyzer: MorphAnalyzer
-    translator: Translator
 
     def _translate_text(
         self,
@@ -41,11 +40,13 @@ class NLPService(interfaces.INLPService):
         :return: Переведенный текст.
         """
 
-        translated_text = self.translator.translate(
+        translated_text = argostranslate.translate.translate(
             text,
-            src=src_lang,
-            dest=dest_lang
-        ).text
+            src_lang,
+            dest_lang
+        )
+
+        print(translated_text)
 
         return translated_text
 

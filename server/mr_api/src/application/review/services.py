@@ -47,6 +47,7 @@ class ReviewProcessingService:
     analyze_consumer: review_interfaces.IAnalyzeConsumer
     websocket_manager: review_interfaces.IWebSocketManager
     excel_manager: review_interfaces.IExcelManager
+    reviews_parser: review_interfaces.IReviewsParser
 
     async def process_test_reviews(
         self,
@@ -80,19 +81,19 @@ class ReviewProcessingService:
         if len(test.reviews) > 10:
             raise exceptions.TooManyTestReviewsException
 
-        try:
-            # Подготовка тестовых отзывов для отправки
-            prepared_reviews = [
-                asdict(
-                    entities.ReviewTemplate(
-                        number=index,
-                        message=review.strip(),
-                        author="You"
-                    )
+        # Подготовка тестовых отзывов для отправки
+        prepared_reviews = [
+            asdict(
+                entities.ReviewTemplate(
+                    number=index,
+                    message=review.strip(),
+                    author="You"
                 )
-                for index, review in enumerate(test.reviews, start=1)
-            ]
+            )
+            for index, review in enumerate(test.reviews, start=1)
+        ]
 
+        try:
             # Отправка тестовых отзывов в очередь для анализа
             await self.review_producer.send_reviews(
                 prepared_reviews, io_settings.REVIEW_QUEUE_NAME
@@ -221,24 +222,8 @@ class ReviewProcessingService:
         # Загрузка и чтение данных из Excel файла
         ws = self.excel_manager.load_data(file.file)
 
-        prepared_reviews = list()
-        unique_reviews = set()
-        # Обработка отзывов из файла
-        #   Предполагается, что отзывы находятся в первом столбце Excel файла
-        for index, row in enumerate(ws.iter_rows(values_only=True), start=1):
-            message = str(row[0]).strip()
-            # Проверка на наличие дубликатов перед добавлением
-            #   в подготовленные отзывы
-            if message not in unique_reviews:
-                unique_reviews.add(message)
-                prepared_reviews.append(
-                    asdict(
-                        entities.ReviewTemplate(
-                            number=index,
-                            message=message
-                        )
-                    )
-                )
+        # Подготовка отзывов для анализа
+        prepared_reviews = self.excel_manager.prepare_data_for_analyze(ws)
 
         # Сохранение файла на сервере
         save_file(file, user_id)
@@ -296,11 +281,10 @@ class ReviewProcessingService:
                         dt=get_current_dt(TimeConstants.DEFAULT_TIMEZONE),
                         level=LogLevel.INFO.value,
                         message=(
-                            "Результат анализа сохранён в БД. ",
+                            "Результат анализа сохранён в БД. "
                             f"(analyze_id: {analyze.id})"
                         )
                     )
-                    print(log_info)
                     logger.info(log_info.message)
                     await self.system_repo.save_log(log_info)
 
@@ -334,6 +318,121 @@ class ReviewProcessingService:
                     user_id=user_id,
                     source_type=SourceType.FILE.value,
                     source_url=file.filename,
+                    entries_analyze=None,
+                    full_analyze=None,
+                    status=analyze_results["status"]
+                )
+            )
+
+            return None
+
+    async def process_reviews_from_website(
+        self,
+        website: str,
+        reviews_id: int,
+        user_id: int
+    ) -> None:
+        websites = {
+            "Wildberries": self.reviews_parser.fetch_wildberries_reviews
+        }
+
+        fetch_reviews = websites.get(website)
+
+        prepared_reviews = fetch_reviews(reviews_id)
+
+        try:
+            # Отправка отзывов в очередь для анализа
+            await self.review_producer.send_reviews(
+                prepared_reviews, io_settings.REVIEW_QUEUE_NAME
+            )
+
+            log_info = LogInput(
+                dt=get_current_dt(TimeConstants.DEFAULT_TIMEZONE),
+                level=LogLevel.INFO.value,
+                message=(
+                    f"Отзывы из источника {website} "
+                    f"отправлены в сервис анализа отзывов. "
+                    f"(user_id: {user_id})"
+                )
+            )
+            logger.info(log_info.message)
+            await self.system_repo.save_log(log_info)
+
+            # Ожидание и получение результатов анализа из очереди
+            async with self.analyze_consumer as consumer:
+                async for analyze_results in consumer.receive_analyze_results(
+                    io_settings.ANALYZE_QUEUE_NAME
+                ):
+                    log_info = LogInput(
+                        dt=get_current_dt(TimeConstants.DEFAULT_TIMEZONE),
+                        level=LogLevel.INFO.value,
+                        message=(
+                            f"Получен результат анализа "
+                            f"отзывов из источника {website}. "
+                            f"(user_id: {user_id})"
+                        )
+                    )
+                    logger.info(log_info.message)
+                    await self.system_repo.save_log(log_info)
+
+                    # Проверка статуса результата анализа
+                    if analyze_results["status"] == Status.ERROR.value:
+                        raise exceptions.AnalyzeServiceException
+
+                    # Сохранение результатов анализа в базе данных
+                    analyze = await self.analyze_repo.save_analyze(
+                        entities.AnalyzeInput(
+                            user_id=user_id,
+                            source_type=SourceType.WEBSITE.value,
+                            source_url=f"{website}/{reviews_id}",
+                            entries_analyze=analyze_results["entries_analyze"],
+                            full_analyze=analyze_results["full_analyze"],
+                            status=analyze_results["status"]
+                        )
+                    )
+
+                    log_info = LogInput(
+                        dt=get_current_dt(TimeConstants.DEFAULT_TIMEZONE),
+                        level=LogLevel.INFO.value,
+                        message=(
+                            "Результат анализа сохранён в БД. "
+                            f"(analyze_id: {analyze.id})"
+                        )
+                    )
+                    logger.info(log_info.message)
+                    await self.system_repo.save_log(log_info)
+
+                    await self.websocket_manager.send_message(
+                        user_id,
+                        f"Анализ отзывов с {website} завершён."
+                    )
+
+                    return None
+        except Exception as e:
+            log_info = LogInput(
+                dt=get_current_dt(TimeConstants.DEFAULT_TIMEZONE),
+                level=LogLevel.ERROR.value,
+                message=(
+                    f"Произошла ошибка при обработке "
+                    f"отзывов из источника {website}. "
+                    f"(user_id: {user_id}, "
+                    f"message: {str(e)})"
+                )
+            )
+            logger.exception(log_info.message)
+            await self.system_repo.save_log(log_info)
+
+            await self.websocket_manager.send_message(
+                user_id,
+                f"Произошла ошибка при обработке отзывов с {website}."
+            )
+
+            # Сохранение ошибочного результата анализа в базе данных
+            await self.analyze_repo.save_analyze(
+                entities.AnalyzeInput(
+                    user_id=user_id,
+                    source_type=SourceType.WEBSITE.value,
+                    source_url=f"{website}/{reviews_id}",
                     entries_analyze=None,
                     full_analyze=None,
                     status=analyze_results["status"]
@@ -386,7 +485,7 @@ class ResultAnalyzeService:
                 user_id
             )
 
-        if analyze is None:
+        if analyze is None or analyze.status == Status.ERROR.value:
             raise exceptions.AnalyzeNotFoundException
 
         # Конвертация даты анализа в строковый формат
@@ -420,6 +519,7 @@ class ResultAnalyzeService:
         analyze_results = [
             schemas.AnalyzeResponse(**asdict(analyze))
             for analyze in all_analyze_results
+            if analyze.status != Status.ERROR.value
         ]
 
         return analyze_results
@@ -563,7 +663,7 @@ class ResultAnalyzeService:
             user_id
         )
 
-        if analyze is None:
+        if analyze is None or analyze.status == Status.ERROR.value:
             raise exceptions.AnalyzeNotFoundException
 
         log_info = LogInput(

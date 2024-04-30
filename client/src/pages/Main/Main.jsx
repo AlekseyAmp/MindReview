@@ -44,7 +44,7 @@ function Main() {
       return;
     }
     const reviewsArray = reviews.split("\n").map((review) => review.trim());
-    setIsSubmitting(true); 
+    setIsSubmitting(true);
     const flag = await analyzeTest(
       reviewsArray,
       setError,
@@ -55,9 +55,25 @@ function Main() {
     if (flag) {
       navigate("/analyze/test");
     }
-    setIsSubmitting(false); 
+    setIsSubmitting(false);
   };
-
+  const features = [
+    {
+      title: "Автоматический анализ отзывов",
+      description:
+        "Наш алгоритм анализирует отзывы вашей аудитории, выделяя ключевые темы и настроения.",
+    },
+    {
+      title: "Наглядные отчеты и диаграммы",
+      description:
+        "Получайте наглядное представление о данных с помощью наших инструментов визуализации, таких как графики, диаграммы и облака слов.",
+    },
+    {
+      title: "Персонализированные рекомендации",
+      description:
+        "На основе анализа отзывов мы предоставляем вам персонализированные рекомендации по улучшению вашего продукта или услуги.",
+    },
+  ];
   return (
     <div className={styles.main}>
       <Helmet>
@@ -131,9 +147,34 @@ function Main() {
           </div>
         </div>
         <div className={styles.features}>
-          <h2 className={`bold-text`}>Особенности MindReview</h2>
-          <div className={styles.banner}>Скоро тут будет контент</div>
-        </div>
+  <h2 className={`bold-text`}>Особенности MindReview</h2>
+  <div className={`${styles.cards} mt50px`}>
+    <div className={styles.card}>
+      <p className={`lettuce-text`} style={{ fontSize: 18 }}>
+        01 Визуализация данных и аналитика
+      </p>
+      <p className={`dark-text`}>
+        Наш сервис предоставляет наглядное представление о результатах анализа с использованием инструментов визуализации.
+      </p>
+    </div>
+    <div className={styles.card}>
+      <p className={`lettuce-text`} style={{ fontSize: 18 }}>
+        02 Скачивание результатов анализа
+      </p>
+      <p className={`dark-text`}>
+        Вы можете легко скачивать результаты анализа для дальнейшего использования.
+      </p>
+    </div>
+    <div className={styles.card}>
+      <p className={`lettuce-text`} style={{ fontSize: 18 }}>
+        03 Интеграция с различными площадками и сервисами
+      </p>
+      <p className={`dark-text`}>
+        MindReview не ограничивается только файлами - он может автоматически забирать отзывы с различных площадок и сервисов, обеспечивая полную и всестороннюю аналитику вашего бизнеса.
+      </p>
+    </div>
+  </div>
+</div>
         <div className={styles.test} id="testService">
           <h2 className={`bold-text`}>Протестируйте сервис</h2>
           <div className={styles.content}>

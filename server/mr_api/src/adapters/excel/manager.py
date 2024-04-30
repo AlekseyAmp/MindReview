@@ -1,12 +1,12 @@
 import typing
-from dataclasses import dataclass
+from dataclasses import asdict, dataclass
 from tempfile import NamedTemporaryFile
 
 from openpyxl import Workbook, load_workbook
 from openpyxl.styles import Alignment, Border, Font, PatternFill, Side
 from openpyxl.worksheet.worksheet import Worksheet
 
-from src.application.review import interfaces
+from src.application.review import entities, interfaces
 
 
 @dataclass
@@ -27,6 +27,40 @@ class ExcelManager(interfaces.IExcelManager):
         wb = load_workbook(file)
         ws = wb.active
         return ws
+
+    def prepare_data_for_analyze(
+        self,
+        ws: Worksheet
+    ) -> list[entities.ReviewTemplate]:
+        """
+        Подготавливает отзывы для анализа.
+
+        :param ws: Рабочий лист (Worksheet)
+        Excel для подготовки отзывов.
+
+        :return: Подготовленные отзывы.
+        """
+
+        prepared_reviews = list()
+        unique_reviews = set()
+        # Обработка отзывов из файла
+        #   Предполагается, что отзывы находятся в первом столбце Excel файла
+        for index, row in enumerate(ws.iter_rows(values_only=True), start=1):
+            message = str(row[0]).strip()
+            # Проверка на наличие дубликатов перед добавлением
+            #   в подготовленные отзывы
+            if message not in unique_reviews:
+                unique_reviews.add(message)
+                prepared_reviews.append(
+                    asdict(
+                        entities.ReviewTemplate(
+                            number=index,
+                            message=message
+                        )
+                    )
+                )
+
+            return prepared_reviews
 
     def create_analyze_report(
         self,

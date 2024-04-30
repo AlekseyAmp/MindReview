@@ -10,7 +10,7 @@ function AnalyzeCard({ review }) {
   };
 
   const number = review.number;
-  const rating = review.rating || "Нет";
+  const raiting = review.raiting || "Нет";
   const sentiment = review.sentiment;
   const message = review.message;
   const keywords =
@@ -107,7 +107,7 @@ function AnalyzeCard({ review }) {
         <div className={styles.raiting}>
           <div className={styles.raitingInfo}>
             <img src="../img/icons/raiting.svg" alt="raiting" />
-            <span className={`purple-text`}>{rating}</span>
+            <span className={`purple-text`}>{raiting}</span>
           </div>
         </div>
       </div>

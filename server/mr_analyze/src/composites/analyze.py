@@ -1,8 +1,8 @@
 import asyncio
 from typing import Generator
 
+import argostranslate.package
 import nltk
-from googletrans import Translator
 from nltk.corpus import stopwords
 from pymorphy3 import MorphAnalyzer
 from sqlalchemy.orm import Session
@@ -45,12 +45,10 @@ class Producer:
 class NLP:
     sentiment_analyzer = SentimentIntensityAnalyzer()
     morph_analyzer = MorphAnalyzer()
-    translator = Translator()
 
     nlp_service = NLPService(
         sentiment_analyzer,
-        morph_analyzer,
-        translator
+        morph_analyzer
     )
 
 
@@ -58,6 +56,18 @@ if __name__ == '__main__':
     nltk.download('stopwords')
     nltk.download('averaged_perceptron_tagger_ru')
     keywords_stopwords = set(stopwords.words('russian'))
+
+    # Download and install Argos Translate package
+    from_code = "ru"
+    to_code = "en"
+    argostranslate.package.update_package_index()
+    available_packages = argostranslate.package.get_available_packages()
+    package_to_install = next(
+        filter(
+            lambda x: x.from_code == from_code and x.to_code == to_code, available_packages # noqa
+        )
+    )
+    argostranslate.package.install_from_path(package_to_install.download())
 
     async def main() -> None:
         async for analyze_producer in Producer().get_analyze_producer():

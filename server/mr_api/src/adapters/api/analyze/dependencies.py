@@ -12,6 +12,7 @@ from src.adapters.database.repositories import (  # noqa
 from src.adapters.database.sa_session import get_session
 from src.adapters.excel.manager import ExcelManager
 from src.adapters.notify.websocket import WebSocketManager
+from src.adapters.requests.reviews import ReviewsParser
 from src.adapters.rpc import AnalyzeConsumer, RabbitMQManager, ReviewProducer
 from src.application.review.services import (
     ResultAnalyzeService,
@@ -63,6 +64,10 @@ def get_excel_manager() -> ExcelManager:
     return ExcelManager()
 
 
+def get_reviews_parser() -> ReviewsParser:
+    return ReviewsParser()
+
+
 def get_review_processing_service(
     analyze_repo: AnalyzeRepository = Depends(get_analyze_repo),
     system_repo: SystemRepository = Depends(get_system_repo),
@@ -70,7 +75,8 @@ def get_review_processing_service(
     review_producer: ReviewProducer = Depends(get_review_producer),
     analyze_consumer: AnalyzeConsumer = Depends(get_analyze_consumer),
     websocket_manager: WebSocketManager = Depends(get_websocket_manager),
-    excel_manager: ExcelManager = Depends(get_excel_manager)
+    excel_manager: ExcelManager = Depends(get_excel_manager),
+    reviews_parser: ReviewsParser = Depends(get_reviews_parser)
 ) -> ReviewProcessingService:
     return ReviewProcessingService(
         analyze_repo,
@@ -79,7 +85,8 @@ def get_review_processing_service(
         review_producer,
         analyze_consumer,
         websocket_manager,
-        excel_manager
+        excel_manager,
+        reviews_parser
     )
 
 

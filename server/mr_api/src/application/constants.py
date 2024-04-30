@@ -10,6 +10,23 @@ class TimeConstants:
     DEFAULT_TIMEZONE: str = "Asia/Yekaterinburg"
 
 
+class ReviewsURLConstants:
+    """
+    Константы URL сайтов с отзывами.
+    """
+
+    # URL для отзывов Wildberries
+    WB_FEEDBACK_URL: str = "https://feedbacks1.wb.ru/feedbacks/v1/"
+
+
+class ReviewWebsite(Enum):
+    """
+    Перечисление для сайтов с отзывовами.
+    """
+
+    WILDBERRIES: str = "Wildberries"
+
+
 class FileConstants:
     """
     Константы для обработки файлов.
