@@ -83,11 +83,16 @@ async def make_analyze_from_website(
     ),
 ) -> dict[str, str]:
 
+    await review_processing_service.process_reviews_from_website_middlware(
+        website.value,
+        reviews_id,
+        user_id
+    )
     background_task.add_task(
         review_processing_service.process_reviews_from_website,
         website.value,
         reviews_id,
-        user_id,
+        user_id
     )
 
     return {"message": "Ваши отзывы отправлены на анализ."}

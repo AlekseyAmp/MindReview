@@ -12,7 +12,7 @@ class ReviewsParser(interfaces.IReviewsParser):
     def fetch_wildberries_reviews(
         self,
         reviews_id: int
-    ) -> list[entities.ReviewTemplate]:
+    ) -> list[entities.ReviewTemplate] | None:
         """
         Метод для получения отзывов Wildberries.
 
@@ -53,7 +53,8 @@ class ReviewsParser(interfaces.IReviewsParser):
                     )
                     for index, review in enumerate(reviews, start=1)
                 ]
-
                 return prepared_reviews
+            else:
+                return None
 
         return None

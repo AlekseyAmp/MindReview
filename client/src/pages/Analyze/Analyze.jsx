@@ -34,39 +34,39 @@ function Analyze() {
   const [selectedSentiments, setSelectedSentiments] = useState([]);
   const [selectedKeywords, setSelectedKeywords] = useState([]);
   const [selectedLocations, setSelectedLocations] = useState([]);
-
+  
   const [showMoreKeywords, setShowMoreKeywords] = useState(false);
   const [showMoreLocations, setShowMoreLocations] = useState(false);
-
+  
   const [success, setSuccess] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
   const [error, setError] = useState(null);
   const [showError, setShowError] = useState(false);
-
+  
   const [showPreload, setShowPreload] = useState(false);
-
+  
   const { analyze_id } = useParams();
-
-  if (!isAuthorized && !analyzeData) {
-    return (
-      <div className={styles.notAuth}>
-        <Helmet>
-          <title>MindReview - Анализ отзывов</title>
-        </Helmet>
-        <div className={styles.notAuthData}>
-          <h3 className={`${styles.title} dark-text`}>
-            <Link className={`purple-text`} to="/login">
-              Войдите{" "}
-            </Link>{" "}
-            или{" "}
-            <Link className={`purple-text`} to="/register">
-              зарегистрируйтесь
-            </Link>
-          </h3>
+  
+    if (!isAuthorized && !analyzeData && analyze_id != "test") {
+      return (
+        <div className={styles.notAuth}>
+          <Helmet>
+            <title>MindReview - Анализ отзывов</title>
+          </Helmet>
+          <div className={styles.notAuthData}>
+            <h3 className={`${styles.title} dark-text`}>
+              <Link className={`purple-text`} to="/login">
+                Войдите{" "}
+              </Link>{" "}
+              или{" "}
+              <Link className={`purple-text`} to="/register">
+                зарегистрируйтесь
+              </Link>
+            </h3>
+          </div>
         </div>
-      </div>
-    );
-  }
+      );
+    }
 
   useEffect(() => {
     const fetchData = async () => {

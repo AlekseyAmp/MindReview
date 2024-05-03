@@ -92,6 +92,7 @@ export async function uploadFile(
         "Content-Type": "multipart/form-data",
       },
     });
+
     if (response.data) {
       setIsLoadAnalyze(true);
       await getNotifyMessage(user_id);
@@ -99,8 +100,44 @@ export async function uploadFile(
     }
   } catch (error) {
     const errorMessage = error.response.data.detail;
-    await getNotifyMessage(user_id);
     setError(errorMessage);
+    setShowError(true);
+    setSuccess(null);
+    setShowSuccess(false);
+    setTimeout(() => {
+      setShowError(false);
+      setError(null);
+    }, 2500);
+  }
+}
+
+export async function analyzeWebsite(
+  user_id,
+  website,
+  reviews_id,
+  setReviewId,
+  setError,
+  setShowError,
+  setSuccess,
+  setShowSuccess,
+  setIsLoadAnalyze
+) {
+  try {
+    const response = await axios.post(
+      `analyze/source?website=${website}&reviews_id=${reviews_id}`
+    );
+    if (response.data) {
+      setReviewId(null);
+      setIsLoadAnalyze(true);
+      await getNotifyMessage(user_id);
+      setIsLoadAnalyze(false);
+    }
+  } catch (error) {
+    if (error.response.status === 422) {
+      setError("Укажите корректный адрес.");
+    } else {
+      setError(error.response.data.detail);
+    }
     setShowError(true);
     setSuccess(null);
     setShowSuccess(false);

@@ -153,7 +153,6 @@ function Profile() {
     aggregateSentiments().sentiments["Негативный"]?.count || 0;
   const neutralCount =
     aggregateSentiments().sentiments["Нейтральный"]?.count || 0;
-
   return (
     <div className={styles.profile}>
       <Helmet>

@@ -325,6 +325,8 @@ class NLPService(interfaces.INLPService):
         Извлекает города из текста отзыва.
 
         :param reviews: Список отзывов.
+        :param all_cities: Список всех городов.
+        :param cities_stopwords: Множество стоп-слов для городов.
 
         :return: Словарь с индексами отзывов
             и найденными городами (в виде множества).

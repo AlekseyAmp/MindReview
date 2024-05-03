@@ -326,6 +326,25 @@ class ReviewProcessingService:
 
             return None
 
+    async def process_reviews_from_website_middlware(
+        self,
+        website: str,
+        reviews_id: int,
+        user_id: int
+    ) -> None:
+        websites = {
+            "Wildberries": self.reviews_parser.fetch_wildberries_reviews
+        }
+
+        fetch_reviews = websites.get(website)
+
+        prepared_reviews = fetch_reviews(reviews_id)
+        
+        if prepared_reviews is None:
+            raise exceptions.GetReviewsFromSourceException(
+                website=website, reviews_id=reviews_id
+            )
+
     async def process_reviews_from_website(
         self,
         website: str,

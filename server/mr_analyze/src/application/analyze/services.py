@@ -43,7 +43,7 @@ class AnalyzeService:
         try:
             print("Начало анализа отзывов")
 
-            # Получаем список все городов
+            # Получаем список всех городов и добавляем их в стоп-слова
             all_cities = self.data_repo.get_all_cities()
             self.keywords_stopwords.update(
                 city.raw_name

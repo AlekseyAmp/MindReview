@@ -132,6 +132,20 @@ class AnalyzeNotFoundException(HTTPException):
     detail: str = "Результат анализа не найден."
 
 
+@dataclass
+class GetReviewsFromSourceException(HTTPException):
+    website: str
+    reviews_id: int
+    status_code: int = 404
+    detail: str | None = None
+
+    def __post_init__(self) -> None:
+        self.detail = (
+            "Не удалось получить отзывы "
+            f" с '{self.website}' по id {self.reviews_id}. "
+        )
+
+
 # Ошибки связанные с обратной связью
 @dataclass
 class FeedbackNotFound(HTTPException):

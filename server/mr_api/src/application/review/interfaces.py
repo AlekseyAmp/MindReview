@@ -113,5 +113,5 @@ class IReviewsParser(ABC):
     def fetch_wildberries_reviews(
         self,
         reviews_id: int
-    ) -> list[entities.ReviewTemplate]:
+    ) -> list[entities.ReviewTemplate] | None:
         None
