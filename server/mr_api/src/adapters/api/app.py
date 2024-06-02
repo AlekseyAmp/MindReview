@@ -27,13 +27,13 @@ app.add_middleware(
 app.add_api_websocket_route('/ws', AuthRouter.router)
 app.include_router(AuthRouter.router, tags=['auth'], prefix='/api/auth')
 app.include_router(
-    UserRouter.router, tags=['user'], prefix='/api/user'
+    UserRouter.router, tags=['users'], prefix='/api/users'
 )
 app.include_router(
     AnalyzeRouter.router, tags=['analyze'], prefix='/api/analyze'
 )
 app.include_router(
-    FeedbackRouter.router, tags=['feedback'], prefix='/api/feedback'
+    FeedbackRouter.router, tags=['feedbacks'], prefix='/api/feedbacks'
 )
 app.include_router(
     SystemRouter.router, tags=['system'], prefix='/api/system'

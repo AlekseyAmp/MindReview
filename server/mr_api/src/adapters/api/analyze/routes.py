@@ -99,7 +99,32 @@ async def make_analyze_from_website(
 
 
 @router.get(
-    path="/get/{analyze_id}",
+    path="",
+    response_model=list[schemas.AnalyzeResponse | None]
+)
+async def get_all_analyze_results(
+    result_analyze_service: ResultAnalyzeService = Depends(
+        get_result_analyze_service
+    ),
+    user_id: int = Depends(get_user_id)
+) -> list[schemas.AnalyzeResponse | None]:
+    return await result_analyze_service.get_all_analyze_results(user_id)
+
+
+@router.get(path="/last", response_model=schemas.AnalyzeResponse)
+async def get_last_analyze_results(
+    result_analyze_service: ResultAnalyzeService = Depends(
+        get_result_analyze_service
+    ),
+    user_id: int = Depends(get_user_id)
+) -> schemas.AnalyzeResponse:
+    return await result_analyze_service.get_analyze_results(
+        user_id
+    )
+
+
+@router.get(
+    path="/{analyze_id}",
     response_model=schemas.AnalyzeResponse
 )
 async def get_analyze_results_by_id(
@@ -113,31 +138,6 @@ async def get_analyze_results_by_id(
         user_id,
         analyze_id
     )
-
-
-@router.get(path="/get_last", response_model=schemas.AnalyzeResponse)
-async def get_last_analyze_results(
-    result_analyze_service: ResultAnalyzeService = Depends(
-        get_result_analyze_service
-    ),
-    user_id: int = Depends(get_user_id)
-) -> schemas.AnalyzeResponse:
-    return await result_analyze_service.get_analyze_results(
-        user_id
-    )
-
-
-@router.get(
-    path="/get_all",
-    response_model=list[schemas.AnalyzeResponse | None]
-)
-async def get_all_analyze_results(
-    result_analyze_service: ResultAnalyzeService = Depends(
-        get_result_analyze_service
-    ),
-    user_id: int = Depends(get_user_id)
-) -> list[schemas.AnalyzeResponse | None]:
-    return await result_analyze_service.get_all_analyze_results(user_id)
 
 
 @router.get(path="/download/{analyze_id}", response_class=FileResponse)

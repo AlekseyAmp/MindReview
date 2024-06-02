@@ -1,0 +1,46 @@
+version: '3.7'
+services:
+  db:
+    image: postgres:14
+    environment:
+      POSTGRES_DB: mindreview
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - "5432:5432"
+    container_name: mindreview-db
+
+  broker:
+    image: rabbitmq:latest
+    environment:
+      RABBITMQ_DEFAULT_USER: rabbit
+      RABBITMQ_DEFAULT_PASS: rabbit
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    container_name: mindreview-broker
+
+  analyze:
+    build:
+      context: .
+      dockerfile: server/mr_analyze/Dockerfile
+    container_name: mindreview-analyze
+
+  api:
+    build:
+      context: .
+      dockerfile: server/mr_api/Dockerfile
+    ports:
+      - "8000:8000"
+    container_name: mindreview-api
+
+  client:
+    build:
+      context: .
+      dockerfile: client/Dockerfile
+    ports:
+      - "3000:3000"
+    container_name: mindreview-client
+
+volumes:
+  pgadmin-mr:

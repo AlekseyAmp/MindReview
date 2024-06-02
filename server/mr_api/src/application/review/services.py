@@ -637,9 +637,9 @@ class ResultAnalyzeService:
             for entry in analyze["entries_analyze"]:
                 other_info = entry.get("other_info", {})
                 cities = other_info.get("cities", {})
-                years = other_info.get("years", {})
+                years = other_info.get("years", {})    
                 cities_string = ", ".join(cities) if cities else NOT_EXCEL_DATA
-                years_string = ", ".join(years) if years else NOT_EXCEL_DATA
+                years_string = ", ".join(map(str, years)) if years else NOT_EXCEL_DATA
 
                 full_analyze.append([
                     entry.get("number", NOT_EXCEL_DATA),

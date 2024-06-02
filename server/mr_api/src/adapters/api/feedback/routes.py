@@ -31,7 +31,7 @@ async def reply_feedback(
 
 
 @router.get(
-    path="/get_all",
+    path="",
     response_model=schemas.FeedbacksResponse
 )
 async def get_all_feedbacks(

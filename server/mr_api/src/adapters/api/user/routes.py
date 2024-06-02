@@ -9,7 +9,7 @@ router = APIRouter()
 
 
 @router.get(
-    path="/get/{user_id}",
+    path="/{user_id}",
     response_model=schemas.UserResponse
 )
 async def get_user(
@@ -23,7 +23,7 @@ async def get_user(
 
 
 @router.get(
-    path="/get_all",
+    path="",
     response_model=list[schemas.UserResponse | None]
 )
 async def get_all_users(
@@ -36,7 +36,7 @@ async def get_all_users(
 
 
 @router.patch(
-    path="/edit/{user_id}",
+    path="/{user_id}",
     response_model=dict[str, str]
 )
 async def edit_user(
@@ -51,7 +51,7 @@ async def edit_user(
 
 
 @router.delete(
-    path="/delete/{user_id}",
+    path="/{user_id}",
     response_model=dict[str, str]
 )
 async def delete_user(
