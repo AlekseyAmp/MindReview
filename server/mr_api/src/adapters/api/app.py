@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from src.adapters.api.analyze import routes as AnalyzeRouter
 from src.adapters.api.auth import routes as AuthRouter
+from src.adapters.api.data import routes as DataRouter
 from src.adapters.api.feedback import routes as FeedbackRouter
 from src.adapters.api.payment import routes as PaymentRouter
 from src.adapters.api.system import routes as SystemRouter
@@ -34,6 +35,9 @@ app.include_router(
 )
 app.include_router(
     FeedbackRouter.router, tags=['feedbacks'], prefix='/api/feedbacks'
+)
+app.include_router(
+    DataRouter.router, tags=['data'], prefix='/api/data'
 )
 app.include_router(
     SystemRouter.router, tags=['system'], prefix='/api/system'

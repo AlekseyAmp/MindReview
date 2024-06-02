@@ -2,7 +2,7 @@ import axios from "../utils/axios";
 
 export async function getUserById(user_id) {
   try {
-    const response = await axios.get(`user/get/${user_id}`);
+    const response = await axios.get(`users/${user_id}`);
 
     if (response.data) {
       return response.data;
@@ -15,7 +15,7 @@ export async function getUserById(user_id) {
 
 export async function getAllUsers() {
   try {
-    const response = await axios.get("user/get_all");
+    const response = await axios.get("users");
 
     if (response.data) {
       return response.data;
@@ -37,7 +37,7 @@ export async function editUser(
   setShowSuccess
 ) {
   try {
-    const response = await axios.patch(`user/edit/${user_id}`, {
+    const response = await axios.patch(`users/${user_id}`, {
       first_name,
       last_name,
       email,
@@ -73,7 +73,7 @@ export async function deleteUser(
   user_id
 ) {
   try {
-    const response = await axios.delete(`user/delete/${user_id}`);
+    const response = await axios.delete(`users/${user_id}`);
 
     if (response.data) {
         return response.data.message;

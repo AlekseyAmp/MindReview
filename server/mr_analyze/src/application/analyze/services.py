@@ -12,7 +12,6 @@ class AnalyzeService:
     Сервис для анализа отзывов.
     """
 
-    analyze_repo: interfaces.IAnalyzeRepository
     data_repo: collection_interfaces.IDataRepository
     review_consumer: interfaces.IReviewСonsumer
     analyze_producer: interfaces.IAnalyzeProducer
@@ -43,11 +42,22 @@ class AnalyzeService:
         try:
             print("Начало анализа отзывов")
 
-            # Получаем список всех городов и добавляем их в стоп-слова
+            # Получаем список городов и стоп-слов
             all_cities = self.data_repo.get_all_cities()
+            all_stopwords = self.data_repo.get_all_stopwords()
+
+            filtered_stopwords = [
+                stopword for stopword in all_stopwords if stopword.use
+            ]
+
             self.keywords_stopwords.update(
                 city.raw_name
                 for city in all_cities
+            )
+
+            self.keywords_stopwords.update(
+                stopword.word
+                for stopword in filtered_stopwords
             )
 
             # Проводим анализ

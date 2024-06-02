@@ -36,7 +36,7 @@ export async function analyzeTest(
 
 export async function getAnalyzeById(analyze_id) {
   try {
-    const response = await axios.get(`analyze/get/${analyze_id}`);
+    const response = await axios.get(`analyze/${analyze_id}`);
 
     if (response.data) {
       return response.data;
@@ -49,7 +49,7 @@ export async function getAnalyzeById(analyze_id) {
 
 export async function getLastAnalyze() {
   try {
-    const response = await axios.get(`analyze/get_last`);
+    const response = await axios.get(`analyze/last`);
 
     if (response.data) {
       return response.data;
@@ -62,7 +62,7 @@ export async function getLastAnalyze() {
 
 export async function getAllAnalyzeResults() {
   try {
-    const response = await axios.get("analyze/get_all");
+    const response = await axios.get("analyze");
 
     if (response.data) {
       return response.data;

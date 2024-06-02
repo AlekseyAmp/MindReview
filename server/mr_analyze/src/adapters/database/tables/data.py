@@ -1,4 +1,12 @@
-from sqlalchemy import Column, DateTime, Integer, MetaData, String, Table
+from sqlalchemy import (
+    Boolean,
+    Column,
+    DateTime,
+    Integer,
+    MetaData,
+    String,
+    Table,
+)
 
 from src.adapters.database.settings import settings
 from src.application.constants import TimeConstants
@@ -60,6 +68,13 @@ stopwords = Table(
         nullable=False,
         unique=True,
         comment='Стоп-слово',
+    ),
+    Column(
+        'use',
+        Boolean,
+        nullable=False,
+        default=False,
+        comment='Использовать стоп-слово или нет',
     ),
     comment='Таблица стоп-слов для фильтрации текстов'
 )

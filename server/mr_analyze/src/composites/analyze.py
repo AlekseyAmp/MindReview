@@ -13,6 +13,7 @@ from src.adapters.database.sa_session import get_session
 from src.adapters.nlp.nlp import NLPService
 from src.adapters.rpc import AnalyzeProducer, RabbitMQManager, ReviewConsumer
 from src.application.analyze.services import AnalyzeService
+from src.application.collection.services import CollectionService
 
 
 class DB:
@@ -69,11 +70,22 @@ if __name__ == '__main__':
     )
     argostranslate.package.install_from_path(package_to_install.download())
 
-    async def main() -> None:
+    async def job(collection_service: CollectionService):
+        """
+        Функция для планировщика, вызывающая сохранение стоп-слов.
+        """
+        while True:
+            await collection_service.save_stopwords()
+            # Спим 1 час перед следующим вызовом
+            await asyncio.sleep(3600)
+
+    async def start_review_processing():
+        """
+        Основная логика анализа данных.
+        """
         async for analyze_producer in Producer().get_analyze_producer():
             async for review_consumer in Consumer().get_review_consumer():
                 analyze_service = AnalyzeService(
-                    DB.analyze_repo,
                     DB.data_repo,
                     review_consumer,
                     analyze_producer,
@@ -82,4 +94,18 @@ if __name__ == '__main__':
                 )
                 await analyze_service.start_review_processing()
 
+    async def main() -> None:
+        # Создаем экземпляры необходимых зависимостей
+        collection_service = CollectionService(
+            DB.analyze_repo,
+            DB.data_repo
+        )
+
+        # Запускаем планировщик и основную логику анализа данных параллельно
+        scheduler_task = asyncio.create_task(job(collection_service))
+        processing_task = asyncio.create_task(start_review_processing())
+
+        await asyncio.gather(scheduler_task, processing_task)
+
+    # Запуск основного кода
     asyncio.run(main())

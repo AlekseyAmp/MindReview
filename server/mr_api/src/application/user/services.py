@@ -16,7 +16,6 @@ from src.application.user import interfaces as user_interfaces
 from src.application.utils import (
     datetime_to_json,
     get_current_dt,
-    hash_password,
     validate_non_empty_fields,
 )
 

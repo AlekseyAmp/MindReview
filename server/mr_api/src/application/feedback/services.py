@@ -100,7 +100,7 @@ class FeedbackService:
         :param reply_feedback: Объект обратной связи.
         :param user_id: ID пользователя.
 
-        :return: Объект обратной связи.
+        :return: Сообщение.
         """
 
         empty_field = validate_non_empty_fields(reply_feedback.dict())

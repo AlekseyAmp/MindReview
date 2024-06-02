@@ -9,7 +9,7 @@ export async function sendFeedback(
   setShowSuccess
 ) {
   try {
-    const response = await axios.post("feedback/send", { email, message });
+    const response = await axios.post("feedbacks/send", { email, message });
     if (response.data) {
       setSuccess(response.data.message);
       setShowSuccess(true);
@@ -39,7 +39,7 @@ export async function sendFeedback(
 
 export async function getAllFeedbacks() {
   try {
-    const response = await axios.get("feedback/get_all");
+    const response = await axios.get("feedbacks");
 
     if (response.data) {
       return response.data;
@@ -59,7 +59,7 @@ export async function replyFeedback(
   setShowSuccess
 ) {
   try {
-    const resp = await axios.post("/feedback/reply", { feedback_id, response });
+    const resp = await axios.post("/feedbacks/reply", { feedback_id, response });
     if (resp.data) {
       setSuccess(resp.data.message);
       setShowSuccess(true);

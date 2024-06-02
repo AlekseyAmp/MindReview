@@ -1,11 +1,17 @@
 from abc import ABC, abstractmethod
 from typing import Generator
 
-from src.application.collection import entities
+from src.application.analyze import entities as analyze_entities
+from src.application.collection import entities as collection_entities
 
 
 class IAnalyzeRepository(ABC):
-    pass
+
+    @abstractmethod
+    async def get_hour_ago_analyze_results(
+        self
+    ) -> list[analyze_entities.AnalyzeReturn | None]:
+        pass
 
 
 class IReviewСonsumer(ABC):
@@ -65,7 +71,7 @@ class INLPService(ABC):
     def extract_cities(
         self,
         reviews: list[dict],
-        all_cities: list[entities.City],
+        all_cities: list[collection_entities.City],
         cities_stopwords: set[str]
     ) -> dict[int, set[str | None]]:
         pass

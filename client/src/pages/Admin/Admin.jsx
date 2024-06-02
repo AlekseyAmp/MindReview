@@ -8,6 +8,11 @@ import styles from "./Admin.module.scss";
 import { getAllFeedbacks } from "../../services/feedback";
 import { getSystemInfo, getAllLogs } from "../../services/system";
 import { getAllUsers, editUser, deleteUser } from "../../services/user";
+import {
+  getAllStopwords,
+  updateStopwordUsage,
+  deleteStopword,
+} from "../../services/data";
 import FeedbackCard from "../../components/Cards/FeedbackCard/FeedbackCard";
 import LogCard from "../../components/Cards/LogCard/LogCard";
 import Input from "../../components/UI/Inputs/Input/Input";
@@ -21,6 +26,7 @@ function Admin() {
   const isAuthorized = !!access_token;
   const [feedbacks, setFeedbacks] = useState({ answered: [], unanswered: [] });
   const [systemInfo, setSystemInfo] = useState();
+  const [stopwords, setStopwords] = useState([]);
   const [logs, setLogs] = useState([]);
   const decode = decodeJWT(access_token);
   const [updateTrigger, setUpdateTrigger] = useState(false);
@@ -115,6 +121,23 @@ function Admin() {
   }, [updateTrigger, activeTab]);
 
   useEffect(() => {
+    async function fetchAllStopwords() {
+      try {
+        const data = await getAllStopwords();
+        if (data) {
+          setStopwords(data);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    }
+
+    if (activeTab === "stopwords") {
+      fetchAllStopwords();
+    }
+  }, [activeTab]);
+
+  useEffect(() => {
     async function fetchSystemInfo() {
       try {
         const data = await getSystemInfo();
@@ -137,7 +160,6 @@ function Admin() {
         const data = await getAllLogs();
         if (data) {
           setLogs(data);
-          console.log(logs);
         }
       } catch (error) {
         console.error(error);
@@ -222,6 +244,40 @@ function Admin() {
     }
   };
 
+  const handleUpdateStopword = async (stopword_id) => {
+    const edited = await updateStopwordUsage(
+      stopword_id,
+      setError,
+      setShowError,
+      setSuccess,
+      setShowSuccess
+    );
+    if (edited) {
+      // Дополнительные действия при успешном изменении пользователя
+    } else {
+      // Дополнительные действия при неудачном изменении пользователя
+    }
+  };
+
+  const handleDeleteStopword = async (stopword_id) => {
+    try {
+      const deleted = await deleteStopword(stopword_id);
+      if (deleted) {
+        setStopwords((stopwords) =>
+          stopwords.filter((stopword) => stopword.id !== stopword_id)
+        );
+        setSuccess(`Вы удлалили стоп-слова с идентификатором ${stopword_id}.`);
+        setShowSuccess(true);
+        setTimeout(() => {
+          setShowSuccess(false);
+          setSuccess(null);
+        }, 2500);
+      }
+    } catch (error) {
+      console.error("Error deleting stopword:", error);
+    }
+  };
+
   return (
     <div className={styles.admin}>
       <Helmet>
@@ -279,7 +335,9 @@ function Admin() {
       </div>
       {activeTab === "users" && (
         <div className={styles.tabContent}>
-            <h3 className={`${styles.title} bold-text`}>Управление пользователями</h3>
+          <h3 className={`${styles.title} bold-text`}>
+            Управление пользователями
+          </h3>
           <div className={styles.users}>
             {users.length === 0 ? (
               <p className={`dark-text`}>Нет данных</p>
@@ -409,7 +467,42 @@ function Admin() {
         </div>
       )}
       {activeTab === "stopwords" && (
-        <div className={styles.tabContent}>Stopwords management content</div>
+        <div className={styles.tabContent}>
+          <h3 className={`${styles.title} bold-text`}>Стоп-слова</h3>
+          <div className={styles.feedbackSections}>
+            <div className={styles.answered}>
+              <div className={styles.titlee}>
+                <img src="../img/icons/done.svg" alt="done" />
+                <h3 className="green-text">Отвеченная:</h3>
+              </div>
+              {feedbacks.answered.length > 0 ? (
+                feedbacks.answered.map((feedback) => (
+                  <FeedbackCard key={feedback.id} feedback={feedback} />
+                ))
+              ) : (
+                <p className={`dark-text mt35px`}>Нет данных</p>
+              )}
+            </div>
+            <div className={styles.unanswered}>
+              <div className={styles.titlee}>
+                <img src="../img/icons/wait.svg" alt="wait" />
+                <h3 className="orange-text">Неотвеченная:</h3>
+              </div>
+              {feedbacks.unanswered.length > 0 ? (
+                feedbacks.unanswered.map((feedback) => (
+                  <div key={feedback.id}>
+                    <FeedbackCard
+                      feedback={feedback}
+                      refreshFeedbacks={refreshFeedbacks}
+                    />
+                  </div>
+                ))
+              ) : (
+                <p className={`dark-text mt35px`}>Нет данных</p>
+              )}
+            </div>
+          </div>
+        </div>
       )}
       {activeTab === "logs" && (
         <div className={styles.tabContent}>
