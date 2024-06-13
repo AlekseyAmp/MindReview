@@ -17,6 +17,12 @@ class ReviewsURLConstants:
 
     # URL для отзывов Wildberries
     WB_FEEDBACK_URL: str = "https://feedbacks1.wb.ru/feedbacks/v1/"
+    
+    # URL для отзывов MegaMarket
+    MEGAMARKET_FEEDBACK_URL: str = (
+        "https://aliexpress.ru/aer-jsonapi/review/v2/desktop/product/reviews?product_id=1005004276737981&_bx-v=2.5.11"
+    )
+
 
 
 class ReviewWebsite(Enum):
@@ -25,6 +31,7 @@ class ReviewWebsite(Enum):
     """
 
     WILDBERRIES: str = "Wildberries"
+    MEGAMARKET: str = "Megamarket"
 
 
 class FileConstants:

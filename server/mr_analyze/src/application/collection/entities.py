@@ -16,6 +16,8 @@ class StopwordInput:
 
 
 @dataclass
-class StopwordReturn(StopwordInput):
+class StopwordReturn:
     id: int
+    dt: datetime
+    word: str
     use: bool

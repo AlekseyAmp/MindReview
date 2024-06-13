@@ -33,6 +33,7 @@ class DataRepository(SABaseRepository, interfaces.IDataRepository):
         result: sqla.MappingResult = self.session.execute(
             query
         ).mappings().all()
+
         return [entities.City(**row) for row in result]
 
     def get_all_stopwords(self) -> list[entities.StopwordReturn] | None:
@@ -44,16 +45,19 @@ class DataRepository(SABaseRepository, interfaces.IDataRepository):
         """
         table: sqla.Table = tables.stopwords
 
-        query: sqla.Select = sqla.select(
-            table.c.id,
-            table.c.dt,
-            table.c.word,
-            table.c.use
+        query: sqla.Select = (
+            sqla.select(
+                table.c.id,
+                table.c.dt,
+                table.c.word,
+                table.c.use
+            )
         )
-
+            
         result: sqla.MappingResult = self.session.execute(
             query
         ).mappings().all()
+
         return [entities.StopwordReturn(**row) for row in result]
 
     async def save_stopwords(

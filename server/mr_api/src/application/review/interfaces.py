@@ -114,4 +114,11 @@ class IReviewsParser(ABC):
         self,
         reviews_id: int
     ) -> list[entities.ReviewTemplate] | None:
-        None
+        pass
+
+    @abstractmethod
+    def fetch_megamarket_reviews(
+        self,
+        reviews_id: int
+    ) -> list[entities.ReviewTemplate] | None:
+        pass

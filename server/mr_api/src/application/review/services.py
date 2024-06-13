@@ -333,7 +333,8 @@ class ReviewProcessingService:
         user_id: int
     ) -> None:
         websites = {
-            "Wildberries": self.reviews_parser.fetch_wildberries_reviews
+            "Wildberries": self.reviews_parser.fetch_wildberries_reviews,
+            "Megamarket": self.reviews_parser.fetch_megamarket_reviews
         }
 
         fetch_reviews = websites.get(website)
@@ -352,7 +353,8 @@ class ReviewProcessingService:
         user_id: int
     ) -> None:
         websites = {
-            "Wildberries": self.reviews_parser.fetch_wildberries_reviews
+            "Wildberries": self.reviews_parser.fetch_wildberries_reviews,
+            "Megamarket": self.reviews_parser.fetch_megamarket_reviews
         }
 
         fetch_reviews = websites.get(website)

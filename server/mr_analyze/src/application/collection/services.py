@@ -29,8 +29,17 @@ class CollectionService:
         """
 
         stopwords = []
+        if analyze_results is None:
+            return stopwords
+
         for result in analyze_results:
+            if not result.entries_analyze:
+                continue
+
             for entry_analyze in result.entries_analyze:
+                if not entry_analyze:
+                    continue
+
                 keywords = entry_analyze.get("keywords", [])
                 for keyword in keywords:
                     stopwords.append(

@@ -39,105 +39,105 @@ class AnalyzeService:
 
         :param reviews: Список отзывов для анализа.
         """
-        try:
-            print("Начало анализа отзывов")
+        # try:
+        print("Начало анализа отзывов")
 
-            # Получаем список городов и стоп-слов
-            all_cities = self.data_repo.get_all_cities()
-            all_stopwords = self.data_repo.get_all_stopwords()
+        # Получаем список городов и стоп-слов
+        all_cities = self.data_repo.get_all_cities()
+        all_stopwords = self.data_repo.get_all_stopwords()
 
-            filtered_stopwords = [
-                stopword for stopword in all_stopwords if stopword.use
-            ]
+        filtered_stopwords = [
+            stopword for stopword in all_stopwords if stopword.use
+        ]
 
-            self.keywords_stopwords.update(
-                city.raw_name
-                for city in all_cities
+        self.keywords_stopwords.update(
+            city.raw_name
+            for city in all_cities
+        )
+
+        self.keywords_stopwords.update(
+            stopword.word
+            for stopword in filtered_stopwords
+        )
+
+        # Проводим анализ
+        sentiments = self.nlp_service.analyze_sentiment(reviews)
+        keywords = self.nlp_service.extract_keywords(
+            reviews,
+            self.keywords_stopwords
+        )
+
+        # Составляем стоп-ворды для городов на основе ключевых слов
+        stopwords_cities = set()
+        for city_keywords in keywords.values():
+            stopwords_cities.update(filter(None, city_keywords))
+
+        cities = self.nlp_service.extract_cities(
+            reviews,
+            all_cities,
+            stopwords_cities
+        )
+        years = self.nlp_service.extract_years(reviews)
+
+        nlp_result = entities.NLPResult(
+            sentiments=sentiments,
+            keywords=keywords,
+            cities=cities,
+            years=years
+        )
+
+        print("Анализ завершён")
+
+        # Подготавливаем результат анализа по каждому отзыву
+        entries_analyze = (self._prepare_entries_analyze(
+            reviews,
+            nlp_result
+        ))
+        entries_analyze_dicts = [
+            asdict(entry)
+            for entry in entries_analyze
+        ]
+
+        full_analyze = self._prepare_full_analyze(
+            entries_analyze
+        )
+
+        # Формирование результатов анализа
+        analyze_results = asdict(
+            entities.AnalyzeResults(
+                entries_analyze=entries_analyze_dicts,
+                full_analyze=asdict(full_analyze),
+                status=Status.COMPLETE.value
             )
+        )
 
-            self.keywords_stopwords.update(
-                stopword.word
-                for stopword in filtered_stopwords
-            )
+        # Отправка результатов анализа в очередь
+        await self.analyze_producer.send_analyze_results(
+            analyze_results, settings.ANALYZE_QUEUE_NAME
+        )
+        print("Результат анализа отправлен в очередь")
 
-            # Проводим анализ
-            sentiments = self.nlp_service.analyze_sentiment(reviews)
-            keywords = self.nlp_service.extract_keywords(
-                reviews,
-                self.keywords_stopwords
-            )
+        return None
+        # except Exception as e:
+        #     print(
+        #         "Произошла ошибка при анализе отзывов: %s", str(e)
+        #     )
 
-            # Составляем стоп-ворды для городов на основе ключевых слов
-            stopwords_cities = set()
-            for city_keywords in keywords.values():
-                stopwords_cities.update(filter(None, city_keywords))
+        #     # Подготовка сообщения об ошибке для отправки
+        #     analyze_error = asdict(
+        #         entities.AnalyzeResults(
+        #             entries_analyze=None,
+        #             full_analyze=None,
+        #             status=Status.ERROR.value
+        #         )
+        #     )
 
-            cities = self.nlp_service.extract_cities(
-                reviews,
-                all_cities,
-                stopwords_cities
-            )
-            years = self.nlp_service.extract_years(reviews)
+        #     # Отправка сообщения об ошибке в очередь
+        #     await self.analyze_producer.send_analyze_results(
+        #         analyze_error, settings.ANALYZE_QUEUE_NAME
+        #     )
 
-            nlp_result = entities.NLPResult(
-                sentiments=sentiments,
-                keywords=keywords,
-                cities=cities,
-                years=years
-            )
-
-            print("Анализ завершён")
-
-            # Подготавливаем результат анализа по каждому отзыву
-            entries_analyze = (self._prepare_entries_analyze(
-                reviews,
-                nlp_result
-            ))
-            entries_analyze_dicts = [
-                asdict(entry)
-                for entry in entries_analyze
-            ]
-
-            full_analyze = self._prepare_full_analyze(
-                entries_analyze
-            )
-
-            # Формирование результатов анализа
-            analyze_results = asdict(
-                entities.AnalyzeResults(
-                    entries_analyze=entries_analyze_dicts,
-                    full_analyze=asdict(full_analyze),
-                    status=Status.COMPLETE.value
-                )
-            )
-
-            # Отправка результатов анализа в очередь
-            await self.analyze_producer.send_analyze_results(
-                analyze_results, settings.ANALYZE_QUEUE_NAME
-            )
-            print("Результат анализа отправлен в очередь")
-
-            return None
-        except Exception as e:
-            print(
-                "Произошла ошибка при анализе отзывов: %s", str(e)
-            )
-
-            # Подготовка сообщения об ошибке для отправки
-            analyze_error = asdict(
-                entities.AnalyzeResults(
-                    entries_analyze=None,
-                    full_analyze=None,
-                    status=Status.ERROR.value
-                )
-            )
-
-            # Отправка сообщения об ошибке в очередь
-            await self.analyze_producer.send_analyze_results(
-                analyze_error, settings.ANALYZE_QUEUE_NAME
-            )
-
-            return None
+        #     return None
 
     def _prepare_entries_analyze(
         self,
