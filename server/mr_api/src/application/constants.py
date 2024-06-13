@@ -105,10 +105,10 @@ class SystemConstants:
     SYSTEM_VERSION: str = "0.1"
 
     # Клиент
-    CLIENT_HOST: str = "http://localhost:3000"
+    CLIENT_HOST: str = "http://193.168.49.248:3000"
 
     # Сервер
-    API_HOST: str = "http://localhost:8000"
-    API_DOCS: str = "http://localhost:8000/docs"
-    WS_HOST: str = "ws://localhost:8000/api"
-    RABBITMQ_HOST: str = "http://localhost:15672"
+    API_HOST: str = "http://193.168.49.248:8000"
+    API_DOCS: str = "http://193.168.49.248:8000/docs"
+    WS_HOST: str = "ws://193.168.49.248:8000/api"
+    RABBITMQ_HOST: str = "http://193.168.49.248:15672"
