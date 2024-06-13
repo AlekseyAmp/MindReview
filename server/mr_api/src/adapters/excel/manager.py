@@ -47,6 +47,7 @@ class ExcelManager(interfaces.IExcelManager):
         #   Предполагается, что отзывы находятся в первом столбце Excel файла
         for index, row in enumerate(ws.iter_rows(values_only=True), start=1):
             message = str(row[0]).strip()
+            print(message)
             # Проверка на наличие дубликатов перед добавлением
             #   в подготовленные отзывы
             if message not in unique_reviews:
