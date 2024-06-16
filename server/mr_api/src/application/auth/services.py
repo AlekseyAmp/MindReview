@@ -47,7 +47,7 @@ class AuthService:
         if empty_field:
             raise exceptions.EmptyFieldException(empty_field)
         
-        if user.password < 8:
+        if len(user.password) < 8:
             raise exceptions.PasswordTooShortException()
 
         user_exsist = await self.user_repo.get_user_by_email(user.email)
