@@ -58,6 +58,26 @@
         }
       }
     }
+    .stopwordsSection {
+      margin-top: 50px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      .titlee {
+        display: flex;
+        flex-direction: row;
+        gap: 5px;
+        align-items: center;
+        h3 {
+          font-weight: bold;
+          font-size: 16px;
+        }
+        img {
+          width: 25px;
+          height: 25px;
+        }
+      }
+    }
     .systemInfoContent {
       margin-top: 50px;
       display: flex;

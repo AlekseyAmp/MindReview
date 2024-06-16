@@ -7,6 +7,7 @@ from src.application import exceptions
 from src.application.constants import UserRole
 from src.application.data import interfaces as data_interfaces
 from src.application.user import interfaces as user_interfaces
+from src.application.utils import datetime_to_json
 
 
 @dataclass
@@ -41,6 +42,9 @@ class DataService:
             raise exceptions.NotAdminRoleException
 
         stopwords = await self.data_repo.get_all_stopwords()
+
+        for stopword in stopwords:
+            stopword.dt = datetime_to_json(stopword.dt)
 
         return [
             schemas.StopwordResponse(**asdict(stopword))

@@ -1,59 +1,57 @@
 import React, { useState } from "react";
-import styles from "./FeedbackCard.module.scss";
+import styles from "./StopwordCard.module.scss";
+import RedButton from "../../UI/Buttons/RedButton/RedButton";
 import OrangeButton from "../../UI/Buttons/OrangeButton/OrangeButton";
-import Textarea from "../../UI/Inputs/Textarea/Textarea";
-import { set } from "../../../services/data";
 import ErrorBox from "../../PopUps/ErrorBox/ErrorBox";
 import SuccessBox from "../../PopUps/SuccessBox/SuccessBox";
+import { deleteStopword, updateStopwordUsage } from "../../../services/data"; // Ensure these services are defined
 
-function StopwordCard({ stopword, refreshStopwords }) {
-  const {
-    id,
-    dt,
-    response_dt,
-    message,
-    response,
-    sender_email,
-    recipient_email,
-  } = feedback;
+function StopwordCard({ stopword, onChange }) {
+  const { id, dt, word, use } = stopword;
 
-  const [responseMessage, setResponseMessage] = useState("");
-  const [showTextarea, setShowTextarea] = useState(false);
   const [error, setError] = useState(null);
   const [showError, setShowError] = useState(false);
   const [success, setSuccess] = useState(null);
   const [showSuccess, setShowSuccess] = useState(false);
 
-  const toggleTextarea = () => {
-    setShowTextarea(!showTextarea);
-  };
-
-  const handleReply = async () => {
-    if (responseMessage.trim()) {
-      const result = await replyFeedback(
+  const handleDelete = async () => {
+    try {
+      await deleteStopword(
         id,
-        responseMessage,
         setError,
         setShowError,
         setSuccess,
         setShowSuccess
       );
-      if (result) {
-        setResponseMessage("");
-        setShowTextarea(false);
-        refreshFeedbacks();
-      }
-    } else {
-      const errorMessage = "Пожалуйста, напишите ответ.";
-      setError(errorMessage);
+      onChange(id);
+      setShowSuccess(true);
+    } catch (err) {
       setShowError(true);
-      setSuccess(null);
-      setShowSuccess(false);
+    } finally {
       setTimeout(() => {
         setShowError(false);
-        setError(null);
+        setShowSuccess(false);
       }, 2500);
-      return;
+    }
+  };
+
+  const handleChange = async () => {
+    try {
+      await updateStopwordUsage(
+        id,
+        setError,
+        setShowError,
+        setSuccess,
+        setShowSuccess
+      );
+      onChange(id);
+    } catch (err) {
+      setShowError(true);
+    } finally {
+      setTimeout(() => {
+        setShowError(false);
+        setShowSuccess(false);
+      }, 2500);
     }
   };
 
@@ -61,48 +59,21 @@ function StopwordCard({ stopword, refreshStopwords }) {
     <div className={styles.card}>
       <div className={styles.header}>
         <p className={`gray-text`}>Номер: {id}</p>
-        <div className={styles.divider}>
-          <div className={styles.from}>
-            <p className={`gray-text`}>От: {sender_email}</p>
-            <p className={`gray-text`}>{dt}</p>
-          </div>
-          <div className={styles.to}>
-            <p className={`gray-text`}>СП: {recipient_email}</p>
-            {response_dt && <p className={`gray-text`}>{response_dt}</p>}
-          </div>
-        </div>
+        <p className={`gray-text`}>{dt}</p>
       </div>
       <div className={styles.content}>
         <p className={`dark-text`}>
-          <span className={`bold-text`}>Сообщение:</span> {message}
+          <span className={`bold-text`}>Слово: </span> {word}
         </p>
-        {response && (
-          <p className={`dark-text`}>
-            <span className={`bold-text`}>Ответ:</span> {response}
-          </p>
-        )}
       </div>
       <div className={styles.footer}>
-        {!response && (
-          <>
-            <p className={`purple-link-text`} onClick={toggleTextarea}>
-              {showTextarea ? "Скрыть" : "Ответить"}
-            </p>
-            {showTextarea && (
-              <>
-                <Textarea
-                  value={responseMessage}
-                  onChange={(e) => setResponseMessage(e.target.value)}
-                  placeholder="Введите ответ..."
-                />
-                <OrangeButton
-                  title={showTextarea ? "Отправить ответ" : "Ответить"}
-                  onClick={handleReply}
-                />
-              </>
-            )}
-          </>
-        )}
+        <RedButton
+          title="Удалить"
+          onClick={handleDelete}
+          width="150px"
+          height="40px"
+        />
+        <OrangeButton title="Использовать" onClick={handleChange} />
       </div>
       {showError && <ErrorBox error={error} />}
       {showSuccess && <SuccessBox success={success} />}
@@ -110,4 +81,4 @@ function StopwordCard({ stopword, refreshStopwords }) {
   );
 }
 
-export default FeedbackCard;
+export default StopwordCard;

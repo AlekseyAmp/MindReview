@@ -14,6 +14,7 @@ import {
   deleteStopword,
 } from "../../services/data";
 import FeedbackCard from "../../components/Cards/FeedbackCard/FeedbackCard";
+import StopwordCard from "../../components/Cards/StopwordCard/StopwordCard";
 import LogCard from "../../components/Cards/LogCard/LogCard";
 import Input from "../../components/UI/Inputs/Input/Input";
 import PurpleButton from "../../components/UI/Buttons/PurpleButton/PurpleButton";
@@ -218,6 +219,12 @@ function Admin() {
     setShowDeleteModal(!showDeleteModal);
   };
 
+  const handleChangeStopword = (id) => {
+    setStopwords((prevStopwords) =>
+      prevStopwords.filter((stopword) => stopword.id !== id)
+    );
+  };
+
   const refreshFeedbacks = () => {
     setUpdateTrigger((prev) => !prev);
   };
@@ -241,40 +248,6 @@ function Admin() {
     } catch (error) {
       // Обработка ошибок удаления пользователя
       console.error("Error deleting user:", error);
-    }
-  };
-
-  const handleUpdateStopword = async (stopword_id) => {
-    const edited = await updateStopwordUsage(
-      stopword_id,
-      setError,
-      setShowError,
-      setSuccess,
-      setShowSuccess
-    );
-    if (edited) {
-      // Дополнительные действия при успешном изменении пользователя
-    } else {
-      // Дополнительные действия при неудачном изменении пользователя
-    }
-  };
-
-  const handleDeleteStopword = async (stopword_id) => {
-    try {
-      const deleted = await deleteStopword(stopword_id);
-      if (deleted) {
-        setStopwords((stopwords) =>
-          stopwords.filter((stopword) => stopword.id !== stopword_id)
-        );
-        setSuccess(`Вы удлалили стоп-слова с идентификатором ${stopword_id}.`);
-        setShowSuccess(true);
-        setTimeout(() => {
-          setShowSuccess(false);
-          setSuccess(null);
-        }, 2500);
-      }
-    } catch (error) {
-      console.error("Error deleting stopword:", error);
     }
   };
 
@@ -469,38 +442,19 @@ function Admin() {
       {activeTab === "stopwords" && (
         <div className={styles.tabContent}>
           <h3 className={`${styles.title} bold-text`}>Стоп-слова</h3>
-          <div className={styles.feedbackSections}>
-            <div className={styles.answered}>
-              <div className={styles.titlee}>
-                <img src="../img/icons/done.svg" alt="done" />
-                <h3 className="green-text">Отвеченная:</h3>
-              </div>
-              {feedbacks.answered.length > 0 ? (
-                feedbacks.answered.map((feedback) => (
-                  <FeedbackCard key={feedback.id} feedback={feedback} />
-                ))
-              ) : (
-                <p className={`dark-text mt35px`}>Нет данных</p>
-              )}
-            </div>
-            <div className={styles.unanswered}>
-              <div className={styles.titlee}>
-                <img src="../img/icons/wait.svg" alt="wait" />
-                <h3 className="orange-text">Неотвеченная:</h3>
-              </div>
-              {feedbacks.unanswered.length > 0 ? (
-                feedbacks.unanswered.map((feedback) => (
-                  <div key={feedback.id}>
-                    <FeedbackCard
-                      feedback={feedback}
-                      refreshFeedbacks={refreshFeedbacks}
-                    />
-                  </div>
-                ))
-              ) : (
-                <p className={`dark-text mt35px`}>Нет данных</p>
-              )}
-            </div>
+          <div className={styles.stopwordsSection}>
+            {stopwords.length > 0 ? (
+              stopwords.map((stopword) => (
+                <div key={stopword.id}>
+                  <StopwordCard
+                    stopword={stopword}
+                    onChange={handleChangeStopword}
+                  />
+                </div>
+              ))
+            ) : (
+              <p className={`dark-text mt35px`}>Нет данных</p>
+            )}
           </div>
         </div>
       )}

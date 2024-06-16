@@ -53,7 +53,7 @@ class DataRepository(SABaseRepository, interfaces.IDataRepository):
                 table.c.use
             )
         )
-            
+
         result: sqla.MappingResult = self.session.execute(
             query
         ).mappings().all()
