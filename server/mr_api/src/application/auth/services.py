@@ -46,6 +46,9 @@ class AuthService:
         empty_field = validate_non_empty_fields(user.dict())
         if empty_field:
             raise exceptions.EmptyFieldException(empty_field)
+        
+        if user.password < 8:
+            raise exceptions.PasswordTooShortException()
 
         user_exsist = await self.user_repo.get_user_by_email(user.email)
 

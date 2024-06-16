@@ -104,6 +104,12 @@ class UserAlreadyPremium(HTTPException):
     status_code: int = 403
 
 
+@dataclass
+class PasswordTooShortException(HTTPException):
+    status_code: int = 400
+    detail: str = "Пароль должен содержать не менее 8 символов."
+
+
 # Ошибки связанные с отзывами и анализом
 @dataclass
 class TooManyTestReviewsException(HTTPException):
